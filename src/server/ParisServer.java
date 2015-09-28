@@ -2,7 +2,7 @@ package server;
 
 public class ParisServer {
 
-	Dictionary<Match, Paris>
+	/*Dictionary<Match, Paris>
 	
 	// Écouter serveur TCP pour recevoir paris
 	
@@ -16,5 +16,5 @@ public class ParisServer {
 	
 	private void addParis(){
 		paris.insert(new Paris...)
-	}
+	}*/
 }
