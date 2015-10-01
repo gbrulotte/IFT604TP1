@@ -10,7 +10,7 @@ import commands.ICommand;
 
 public class ListeDesMatchs extends Thread{
 	public final static BlockingQueue<ICommand> queue = new ArrayBlockingQueue<ICommand>(10);
-	List<Match> matches = Collections.synchronizedList(new ArrayList<Match>());
+	public static List<Match> matches = Collections.synchronizedList(new ArrayList<Match>());
 	
 	public void addMatch(Match match){
 		matches.add(match);
@@ -19,6 +19,7 @@ public class ListeDesMatchs extends Thread{
 	public void run(){
 		try{
 			ICommand command = queue.take();
+			System.out.println("ListeDesMatchs: Executing command");
 			command.execute();
 		}
 		catch(Exception e){

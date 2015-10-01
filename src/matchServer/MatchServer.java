@@ -24,6 +24,8 @@ public class MatchServer implements Runnable {
     }
     
     public void run(){
+		new Thread(new ListeDesMatchs()).start();
+		
     	synchronized(this){
     		this.runningThread = Thread.currentThread();
     	}
@@ -33,11 +35,12 @@ public class MatchServer implements Runnable {
     		try{
     			receivePacket = new DatagramPacket(receiveData, receiveData.length);
     			serverSocket.receive(receivePacket);
+    			System.out.println("MatchServer: Receiving command");
     		}
-    		catch(IOException e){;
+    		catch(IOException e){
     			System.out.println("Unabled to accept client connection : " + e.toString());
     		}
-    		this.threadPool.execute(new TraiterCommande(receivePacket));
+    		this.threadPool.execute(new TraiterCommande(serverSocket, receivePacket, new String(receivePacket.getData())));
     	}
     	this.threadPool.shutdown();
     	System.out.println("Server stopped");

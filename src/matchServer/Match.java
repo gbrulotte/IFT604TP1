@@ -1,12 +1,13 @@
 package matchServer;
 
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class Match extends Thread{
+public class Match implements Serializable, Runnable{
 	String teamA;
 	String teamB;
 	int scoreA;

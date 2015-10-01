@@ -14,22 +14,14 @@ public class Launcher {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);		
 		
-		/*while (!isExited) {
-			showMenu();			
-			executeCommand(scanner.nextLine());
-		}*/
-			
 		MatchServer server = new MatchServer(9000, 10);
 		new Thread(server).start();
-
-//		try {
-//		    Thread.sleep(20 * 1000);
-//		} catch (InterruptedException e) {
-//		    e.printStackTrace();
-//		}
-		String input = scanner.nextLine();
-		while(!input.equals("exit"));
-		System.out.println("Stopping Server");
+		
+		while (!isExited) {
+			showMenu();			
+			executeCommand(scanner.nextLine());
+		}
+		
 		server.stop();
 		
 		System.out.println("Exiting...");
