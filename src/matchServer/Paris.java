@@ -1,4 +1,4 @@
-package server;
+package matchServer;
 
 import java.net.Socket;
 

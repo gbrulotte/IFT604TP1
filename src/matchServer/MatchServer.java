@@ -1,18 +1,22 @@
-package server;
+package matchServer;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MatchServer implements Runnable {
-//threadpool
 	protected int          serverPort   = 8080;
-    protected ServerSocket serverSocket = null;
+    protected DatagramSocket serverSocket = null;
     protected boolean      isStopped    = false;
     protected Thread       runningThread= null;
     protected ExecutorService threadPool = null;
+    
+    byte[] receiveData = new byte[1024];             
+    byte[] sendData = new byte[1024];
     
     public MatchServer(int serverPort, int nbThreads){
     	this.serverPort = serverPort;
@@ -25,14 +29,15 @@ public class MatchServer implements Runnable {
     	}
     	openServerSocket();
     	while(!isStopped()){
-    		Socket clientSocket = null;
+    		DatagramPacket receivePacket = null;
     		try{
-    			clientSocket = this.serverSocket.accept();
+    			receivePacket = new DatagramPacket(receiveData, receiveData.length);
+    			serverSocket.receive(receivePacket);
     		}
     		catch(IOException e){;
     			System.out.println("Unabled to accept client connection : " + e.toString());
     		}
-    		this.threadPool.execute(new WorkerRunnable(clientSocket, "Thread pooled Server"));
+    		this.threadPool.execute(new TraiterCommande(receivePacket));
     	}
     	this.threadPool.shutdown();
     	System.out.println("Server stopped");
@@ -40,7 +45,7 @@ public class MatchServer implements Runnable {
     
 	private void openServerSocket() {
 		try{
-			this.serverSocket = new ServerSocket(serverPort);
+			this.serverSocket = new DatagramSocket(serverPort);
 		}
 		catch(IOException e){
 			System.out.println("Problem while opening server socket on port " + serverPort + " : " + e.toString());
@@ -53,11 +58,6 @@ public class MatchServer implements Runnable {
 	
 	public synchronized void stop(){
 		this.isStopped = true;
-		try{
-			this.serverSocket.close();
-		}
-		catch(IOException e){
-			System.out.println("Problem while closing server : " + e.toString());
-		}
+		this.serverSocket.close();
 	}
 }

@@ -1,4 +1,4 @@
-package server;
+package parisServer;
 
 public class ParisServer {
 

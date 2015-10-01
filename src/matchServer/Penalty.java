@@ -1,4 +1,4 @@
-package server;
+package matchServer;
 
 public class Penalty {
 	String player;

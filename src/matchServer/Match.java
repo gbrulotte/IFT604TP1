@@ -1,11 +1,12 @@
-package server;
+package matchServer;
 
 import java.net.Socket;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.ArrayBlockingQueue;
 
-public class Match {
+public class Match extends Thread{
 	String teamA;
 	String teamB;
 	int scoreA;
@@ -35,5 +36,9 @@ public class Match {
 	
 	public void addClient(Socket client){
 		clients.add(client);
+	}
+	
+	public void run(){
+		
 	}
 }

@@ -1,4 +1,4 @@
-package server;
+package matchServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,24 +14,25 @@ public class Launcher {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);		
 		
-		while (!isExited) {
+		/*while (!isExited) {
 			showMenu();			
 			executeCommand(scanner.nextLine());
-		}
-		
-		scanner.close();		
-		System.out.println("Exiting...");
-		
-//		MatchServer server = new MatchServer(9000, 10);
-//		new Thread(server).start();
-//
+		}*/
+			
+		MatchServer server = new MatchServer(9000, 10);
+		new Thread(server).start();
+
 //		try {
 //		    Thread.sleep(20 * 1000);
 //		} catch (InterruptedException e) {
 //		    e.printStackTrace();
 //		}
-//		System.out.println("Stopping Server");
-//		server.stop();
+		String input = scanner.nextLine();
+		while(!input.equals("exit"));
+		System.out.println("Stopping Server");
+		server.stop();
+		
+		System.out.println("Exiting...");
 	}
 	
 	private static void executeCommand(String command) {
