@@ -14,19 +14,29 @@ public class Test {
 	
 	public static void main(String args[]) throws Exception    
 	{       
-		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-		DatagramSocket clientSocket = new DatagramSocket();
-		InetAddress IPAddress = InetAddress.getByName("localhost"); 
-		byte[] sendData = new byte[1024]; 
-		byte[] receiveData = new byte[1024];
-		String sentence = inFromUser.readLine();
-		sendData = sentence.getBytes();
-		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8080);
-		clientSocket.send(sendPacket);       
-		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);       
-		clientSocket.receive(receivePacket);       
-		String modifiedSentence = new String(receivePacket.getData());       
-		System.out.println("FROM SERVER:" + modifiedSentence);       
-		clientSocket.close();    
+		DatagramSocket  socket = new DatagramSocket(1234);
+		DatagramPacket  request;
+		 
+		while(true)
+		{
+		      String data = null;
+		                 
+		       try {
+		        byte[] buffer = new byte[1024];
+		        request         = new DatagramPacket(buffer, buffer.length);
+		        socket.receive(request);
+		        data = new String(request.getData());
+		        data = data.trim();
+		        System.out.println(data);
+		                //do your processing with request data
+		                //Sending response 
+		                String response = "Test Reply from UDP server!";
+		                DatagramPacket reply = new DatagramPacket(response.getBytes(), response.length(), request.getAddress(), request.getPort());
+		        socket.send(reply);
+		    }
+		    catch(Exception err) {
+		        err.printStackTrace();
+		    } 
+		}   
 	}
 }
