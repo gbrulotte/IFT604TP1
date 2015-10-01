@@ -3,10 +3,10 @@ package matchServer;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import commands.TraiterCommande;
 
 public class MatchServer implements Runnable {
 	protected int          serverPort   = 8080;
@@ -35,7 +35,6 @@ public class MatchServer implements Runnable {
     		try{
     			receivePacket = new DatagramPacket(receiveData, receiveData.length);
     			serverSocket.receive(receivePacket);
-    			System.out.println("MatchServer: Receiving command");
     		}
     		catch(IOException e){
     			System.out.println("Unabled to accept client connection : " + e.toString());

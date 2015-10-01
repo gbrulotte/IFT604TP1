@@ -1,34 +1,51 @@
 package testServer;
 
-import java.io.*; 
 import java.net.*;
+import java.util.Scanner;
 
-class TestCalice {    
-	public static void main(String args[]) throws Exception       
-	{          
-		DatagramSocket  socket = new DatagramSocket();
-		try{
-		         String requestData         = "'Hello World' via UDP in JAVA";
-		         byte [] m              = requestData.getBytes();
-		         InetAddress aHost      = InetAddress.getByName("localhost");
-		         int serverPort             = 1234;
-		         DatagramPacket request     = new DatagramPacket(m, requestData.length(), aHost, serverPort);
-		         socket.send(request);
-		         byte [] buffer = new byte[1000];
-		         DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-		         socket.setSoTimeout(2000);
-		         socket.receive(reply);
-		         String data = new String(reply.getData());
-			        data = data.trim();
-			        System.out.println(data);
+class TestServeur {
+	public static void main(String args[]) throws Exception {
+		DatagramSocket socket = new DatagramSocket();
+		try {
+			String requestData = "ListerMatch";
+			byte[] m = requestData.getBytes();
+			DatagramPacket request = new DatagramPacket(m, requestData.length(), InetAddress.getByName("localhost"), 8080);
+			socket.send(request);
+
+			byte[] buffer = new byte[1000];
+			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+			socket.receive(reply);
+			String data = new String(reply.getData());
+			data = data.trim();
+			System.out.println(data);
+
+			Scanner sc = new Scanner(System.in);
+			while (!requestData.equals("MiseAJour~")) {
+				
+				requestData = sc.nextLine();
+				requestData = "MiseAJour~" + requestData;
+				m = requestData.getBytes();
+				request = new DatagramPacket(m, requestData.length(),
+						InetAddress.getByName("localhost"), 8080);
+				socket.send(request);
+
+				buffer = new byte[1000];
+				reply = new DatagramPacket(buffer, buffer.length);
+				socket.receive(reply);
+				data = new String(reply.getData());
+				data = data.trim();
+				System.out.println(data);
+				Thread.sleep(5000);
+			}
+			
+			sc.close();
+
+		} catch (SocketTimeoutException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			socket.close();
 		}
-		catch(SocketTimeoutException e){
-		    e.printStackTrace();
-		}
-		catch(Exception e){
-		        e.printStackTrace();
-		}finally{
-		    socket.close();
-		}	      
-	} 	
+	}
 }

@@ -1,27 +1,60 @@
 package matchServer;
 
 import java.io.Serializable;
-import java.net.Socket;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import commands.EnleverMatchCommand;
+import commands.ICommand;
 
 public class Match implements Serializable, Runnable{
-	String teamA;
-	String teamB;
-	int scoreA;
-	int scoreB;
-	List<Goal> goals = Collections.synchronizedList(new ArrayList<Goal>());
-	List<Penalty> penalties = Collections.synchronizedList(new ArrayList<Penalty>());
-	List<Socket> clients = Collections.synchronizedList(new ArrayList<Socket>());
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	public UUID id;
+	public String teamA;
+	public String teamB;
+	public int scoreA;
+	public int scoreB;
+	public AtomicInteger chrono = new AtomicInteger(36000); 
+	public List<Goal> goals = Collections.synchronizedList(new ArrayList<Goal>());
+	public List<Penalty> penalties = Collections.synchronizedList(new ArrayList<Penalty>());
+	public boolean matchDone;
+	public final static BlockingQueue<ICommand> queue = new ArrayBlockingQueue<ICommand>(10);
+	//public transient List<Client> clients = Collections.synchronizedList(new ArrayList<Client>());
 	
-	public Match(String teamA, String teamB){
+	public Match(String teamA, String teamB, final UUID id){
 		this.teamA = teamA;
 		this.teamB = teamB;
+		this.id = id;
+		
+		new Timer().scheduleAtFixedRate( 
+		        new TimerTask() {
+		            @Override
+		            public void run() {
+		            	int oldValue = chrono.getAndSet(chrono.get() - 30);
+		            	if(oldValue == 30){
+		            		try {
+		            			matchDone = true;
+		            			ListeDesMatchs.queue.put(new EnleverMatchCommand(id));
+		            		} catch (InterruptedException e) {
+		            			System.out.println("Problème avec le timer du match " + id + ": " + e.toString());
+		            		}
+		            	}
+		            		
+		            }
+		        }, 30000, 30000);
 	}
 	
-	public void addGoalA(String player, List<String> asssits){
+	/*public void addGoalA(String player, List<String> asssits){
 		scoreA++;
 		goals.add(new Goal(teamA, player, asssits));
 	}
@@ -35,11 +68,18 @@ public class Match implements Serializable, Runnable{
 		penalties.add(new Penalty(player, infringement, time));
 	}
 	
-	public void addClient(Socket client){
+	public void addClient(Client client){
 		clients.add(client);
-	}
+	}*/
 	
 	public void run(){
+		while(!matchDone){
+			try {
+				queue.take();
+			} catch (InterruptedException e) {
+				System.out.println("Problème dans la BlockingQueue de Match " + e.toString());
+			}
+		}
 		
 	}
 }
