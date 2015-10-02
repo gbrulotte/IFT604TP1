@@ -8,19 +8,21 @@ import matchServer.Match;
 public class AjouterButMatchCommand implements ICommand {
 
 	Match match;
-	String team;
-	String player;
-	List<String> assists;
+	Goal goal;
 	
-	public AjouterButMatchCommand(Match match, String team, String player, List<String> assists) {
+	public AjouterButMatchCommand(Match match, Goal goal) {
 		this.match = match;
-		this.team = team;
-		this.player = player;
-		this.assists = assists;
+		this.goal = goal;
 	}
 
 	@Override
 	public void execute() {
-		match.goals.add(new Goal(team, player, assists));
+		if(match.teamA.equals(goal.team))
+			match.scoreA++;
+		else if(match.teamB.equals(goal.team))
+			match.scoreB++;
+		else
+			return;
+		match.goals.add(goal);
 	}
 }

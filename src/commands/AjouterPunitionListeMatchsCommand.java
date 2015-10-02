@@ -1,27 +1,26 @@
 package commands;
 
-import java.util.List;
 import java.util.UUID;
 
 import matchServer.Goal;
 import matchServer.ListeDesMatchs;
 import matchServer.Match;
+import matchServer.Penalty;
 
-public class AjouterButListeMatchsCommand implements ICommand {
-
+public class AjouterPunitionListeMatchsCommand implements ICommand{
 	UUID matchId;
-	Goal goal;
+	Penalty penalty;
 	
-	public AjouterButListeMatchsCommand(UUID matchId, Goal goal) {
+	public AjouterPunitionListeMatchsCommand(UUID matchId, Penalty penalty) {
 		this.matchId = matchId;
-		this.goal = goal;
+		this.penalty = penalty;
 	}
 
 	@Override
 	public void execute() {
 		try {
 			Match match = ListeDesMatchs.matches.get(matchId);
-			match.queue.put(new AjouterButMatchCommand(match, goal));
+			match.queue.put(new AjouterPunitionMatchCommand(match, penalty));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

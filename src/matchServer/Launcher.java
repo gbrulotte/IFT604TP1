@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import commands.AjouterButListeMatchsCommand;
 import commands.AjouterMatchCommand;
+import commands.AjouterPunitionListeMatchsCommand;
 import commands.ListerMatchAdminCommand;
 
 public class Launcher {
@@ -79,18 +80,21 @@ public class Launcher {
 			for (int i = 4; i < splittedCommand.length; i++) {
 				assists.add(splittedCommand[i]);					
 			}
-			ListeDesMatchs.queue.add(new AjouterButListeMatchsCommand(matchId, team, player, assists));
+			Goal goal = new Goal(team, player, assists);
+			ListeDesMatchs.queue.add(new AjouterButListeMatchsCommand(matchId, goal));
 		} else {
 			System.err.println("addGoal takes from 4 to 6 arguments.");
 		}
 	}
 	
 	private static void addPenaltyCommand(String[] splittedCommand) {
-		if (splittedCommand.length == 4) {
-			String player = splittedCommand[1];
-			String infringement = splittedCommand[2];
-			String time = splittedCommand[3];
-			System.out.println("addPenalty(\"" + player + "\", \"" + infringement + "\", " + time + ");");
+		if (splittedCommand.length == 5) {
+			UUID matchId = UUID.fromString(splittedCommand[1]);
+			String player = splittedCommand[2];
+			String infringement = splittedCommand[3];
+			int time = Integer.parseInt(splittedCommand[4]);
+			Penalty penalty = new Penalty(player, infringement, time);
+			ListeDesMatchs.queue.add(new AjouterPunitionListeMatchsCommand(matchId, penalty));
 		} else {
 			System.err.println("addPenalty takes 3 arguments.");
 		}
