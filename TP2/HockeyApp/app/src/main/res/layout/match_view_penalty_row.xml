@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/match_penalty_player"
+        android:text="Player"
+        android:layout_weight="1"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:gravity="center"/>
+    <TextView
+        android:id="@+id/match_penalty_fault"
+        android:text="Fault"
+        android:layout_weight="1"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:gravity="center"/>
+    <TextView
+        android:id="@+id/match_penalty_length"
+        android:text="Length"
+        android:layout_weight="1"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:gravity="center"/>
+    <TextView
+        android:id="@+id/match_penalty_time"
+        android:text="Time"
+        android:layout_weight="1"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:gravity="center"/>
+</TableRow>

@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Hockey App</string>
+    <string name="title_activity_match_list_view">MatchListView</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="label_matches">Matchs</string>
+    <string name="title_activity_match_view">MatchView</string>
+
+    <string name="hello_world">Hello world!</string>
+</resources>
