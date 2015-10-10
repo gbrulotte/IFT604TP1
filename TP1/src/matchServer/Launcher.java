@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
+import parisServer.Paris;
+import parisServer.ParisServer;
 import commands.AjouterButListeMatchsCommand;
 import commands.AjouterMatchCommand;
 import commands.AjouterPunitionListeMatchsCommand;
 import commands.ListerMatchAdminCommand;
+import commands.ListerParisAdminCommand;
 
 public class Launcher {
 	private static boolean isExited = false;		
@@ -16,13 +19,18 @@ public class Launcher {
 	private static final String CMD_ADDPENALTY = "addPenalty";
 	private static final String CMD_SHOWMATCHLIST = "showMatchList";
 	private static final String CMD_ADDMATCH = "addMatch";
+	private static final String CMD_LISTERPARIS = "listerParis";
 	private static final String CMD_EXIT = "exit";
+	private static final String CMD_BETONMATCH = "bet";
 
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);		
 		
 		MatchServer server = new MatchServer(8080, 10);
+		ParisServer serveurParis = new ParisServer(8081);
+		
 		new Thread(server).start();
+		new Thread(serveurParis).start();
 		
 		while (!isExited) {
 			showMenu();
@@ -54,8 +62,17 @@ public class Launcher {
 		} else if (action.equalsIgnoreCase(CMD_ADDPENALTY)) {
 			addPenaltyCommand(splittedCommand);
 		} else if (action.equalsIgnoreCase(CMD_SHOWMATCHLIST)) {
-			System.out.println("Afficher la liste...");
-		} else {
+			System.out.println("Afficher la liste des match...");
+		}
+		else if (action.equalsIgnoreCase(CMD_LISTERPARIS)) {
+			try{
+				Paris.queue.put(new ListerParisAdminCommand());
+			}catch(Exception ex){
+				System.out.println("Something went wrong u faggot!");
+			}
+			
+		}
+		else {
 			System.err.println("Command not recognized.");
 		}
 	}
@@ -116,6 +133,11 @@ public class Launcher {
 		System.out.println("\t\t- player : The name of the player who got a penalty");
 		System.out.println("\t\t- infringement : What the player did");
 		System.out.println("\t\t- time : When the penalty was given");
+		
+		System.out.println("\t" + CMD_BETONMATCH + " bet on a match");
+		System.out.println("\t\t- match : The match on which you want to bet");
+		System.out.println("\t\t- team : The chosen team");
+		System.out.println("\t\t- amount : How much do you want to bet");
 		
 		System.out.println("\t" + CMD_SHOWMATCHLIST);
 				
