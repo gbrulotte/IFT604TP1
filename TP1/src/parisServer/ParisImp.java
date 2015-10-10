@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.UUID;
 
 public class ParisImp implements Serializable{
-	public Socket socket;
+	public transient Socket socket;
 	public UUID matchId;
 	public int amount;
 	public String team;
