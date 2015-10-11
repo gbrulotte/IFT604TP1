@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import commands.EnleverMatchCommand;
 import commands.ICommand;
+import commands.SendBetResultCommand;
+import parisServer.Paris;
 
 public class Match implements Serializable, Runnable{
 	/**
@@ -29,6 +31,7 @@ public class Match implements Serializable, Runnable{
 	public List<Penalty> penalties = Collections.synchronizedList(new ArrayList<Penalty>());
 	public boolean matchDone;
 	public final static BlockingQueue<ICommand> queue = new ArrayBlockingQueue<ICommand>(10);
+	public Match currentMatch = this;
 	//public transient List<Client> clients = Collections.synchronizedList(new ArrayList<Client>());
 	
 	public Match(String teamA, String teamB, final UUID id){
@@ -44,11 +47,13 @@ public class Match implements Serializable, Runnable{
 		            	if(oldValue == 30){
 		            		try {
 		            			matchDone = true;
-		            			ListeDesMatchs.queue.put(new EnleverMatchCommand(id));
+		            			Paris.queue.put(new SendBetResultCommand(currentMatch));
+		            			//ListeDesMatchs.queue.put(new EnleverMatchCommand(id));
 		            		} catch (InterruptedException e) {
 		            			System.out.println("Probl�me avec le timer du match " + id + ": " + e.toString());
 		            		}
 		            	}
+		            	
 		            		
 		            }
 		        }, 30000, 30000);
