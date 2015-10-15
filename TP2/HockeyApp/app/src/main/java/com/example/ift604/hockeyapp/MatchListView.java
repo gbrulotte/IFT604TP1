@@ -21,6 +21,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -36,7 +39,7 @@ public class MatchListView extends Activity {
 
     private Handler _handler = new Handler();
     private RefresherThread _refresher;
-    private int _refreshInterval = 10 * 1000; // 2 minutes
+    private int _refreshInterval = 2 * 60 * 1000; // 2 minutes
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,14 +128,24 @@ public class MatchListView extends Activity {
 
         @Override
         protected JSONArray doInBackground(Void... params) {
+            String json = null;
             try {
-                Thread.sleep(1000);
-
-            } catch (InterruptedException e) {
+                UDPHelper udp = new UDPHelper("192.168.0.102", 8080);
+                json = udp.sendAndReceive("ListerMatch");
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            JSONArray jArray = new JSONParser().getJSONArrayFromString(json_data);
-            return jArray;
+
+            JSONArray jsonArray = new JSONParser().getJSONArrayFromString(json);
+            return jsonArray;
+//            try {
+//                Thread.sleep(1000);
+//
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            JSONArray jArray = new JSONParser().getJSONArrayFromString(json_data);
+//            return jArray;
         }
 
         @Override

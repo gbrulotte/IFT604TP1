@@ -35,6 +35,7 @@ public class MatchServer implements Runnable {
     		try{
     			receivePacket = new DatagramPacket(receiveData, receiveData.length);
     			serverSocket.receive(receivePacket);
+    			System.out.println("!!!!!!Received data!!!!!!");
     		}
     		catch(IOException e){
     			System.out.println("Unabled to accept client connection : " + e.toString());
