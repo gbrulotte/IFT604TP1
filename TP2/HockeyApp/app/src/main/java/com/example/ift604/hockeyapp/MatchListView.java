@@ -130,7 +130,7 @@ public class MatchListView extends Activity {
         protected JSONArray doInBackground(Void... params) {
             String json = null;
             try {
-                UDPHelper udp = new UDPHelper("192.168.0.102", 8080);
+                UDPHelper udp = new UDPHelper("10.0.2.2", 8080);
                 json = udp.sendAndReceive("ListerMatch");
             } catch (Exception e) {
                 e.printStackTrace();
