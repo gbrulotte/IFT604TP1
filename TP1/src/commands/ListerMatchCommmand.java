@@ -21,8 +21,7 @@ public class ListerMatchCommmand implements ICommand{
 	
 	@Override
 	public void execute(){
-		//System.out.println("!!!!!ListerMatchCommand!!!!!!");
-		Gson gson = new Gson();
+		System.out.println("!!!!!ListerMatchCommand!!!!!!");		Gson gson = new Gson();
 		byte[] sendData = new byte[1024];
 		sendData = gson.toJson(ListeDesMatchs.matches.values()).getBytes();
 		try {

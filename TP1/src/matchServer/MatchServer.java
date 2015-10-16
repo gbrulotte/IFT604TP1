@@ -43,8 +43,6 @@ public class MatchServer implements Runnable {
     	System.out.println("Server stopped");
     }
     
-    
-    
 	private void openServerSocket() {
 		try{
 			this.serverSocket = new DatagramSocket(serverPort);

@@ -1,7 +1,5 @@
 package commands;
 
-import java.util.List;
-
 import matchServer.Goal;
 import matchServer.Match;
 
@@ -23,6 +21,8 @@ public class AjouterButMatchCommand implements ICommand {
 			match.scoreB++;
 		else
 			return;
+		
+		goal.time = match.chrono.get();
 		match.goals.add(goal);
 	}
 }

@@ -19,12 +19,7 @@ public class AjouterButListeMatchsCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		try {
-			Match match = ListeDesMatchs.matches.get(matchId);
-			match.queue.put(new AjouterButMatchCommand(match, goal));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Match match = ListeDesMatchs.matches.get(matchId);
+		match.addCommand(new AjouterButMatchCommand(match, goal));
 	}
 }
