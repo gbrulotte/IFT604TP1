@@ -26,7 +26,7 @@ public class Match implements Serializable, Runnable{
 	public String teamB;
 	public int scoreA;
 	public int scoreB;
-	public AtomicInteger chrono = new AtomicInteger(36000); 
+	public AtomicInteger chrono = new AtomicInteger(3600); 
 	public List<Goal> goals = Collections.synchronizedList(new ArrayList<Goal>());
 	public List<Penalty> penalties = Collections.synchronizedList(new ArrayList<Penalty>());
 	public boolean matchDone;
@@ -50,7 +50,7 @@ public class Match implements Serializable, Runnable{
 		            			Paris.queue.put(new SendBetResultCommand(currentMatch));
 		            			//ListeDesMatchs.queue.put(new EnleverMatchCommand(id));
 		            		} catch (InterruptedException e) {
-		            			System.out.println("Problï¿½me avec le timer du match " + id + ": " + e.toString());
+		            			System.out.println("Problème avec le timer du match " + id + ": " + e.toString());
 		            		}
 		            	}
 		            	
@@ -83,7 +83,7 @@ public class Match implements Serializable, Runnable{
 				ICommand command = queue.take();
 				command.execute();
 			} catch (InterruptedException e) {
-				System.out.println("Problï¿½me dans la BlockingQueue de Match " + e.toString());
+				System.out.println("Problème dans la BlockingQueue de Match " + e.toString());
 			}
 		}
 		

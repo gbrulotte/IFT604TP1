@@ -28,12 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MatchListView extends Activity {
-
-    public static final String json_data = "[{\"id\":\"195a2b3b-edab-4e72-a6a7-6d47d6611d41\",\"teamA\":\"Canadiens de Montréal\",\"teamB\":\"Maple Leafs de Toronto\",\"scoreA\":2,\"scoreB\":1}," +
-                                            "{\"id\":\"3cb75f1c-893f-4a59-9792-8091c582755a\",\"teamA\":\"Canucks de Vancouver\",\"teamB\":\"Senateurs d'Ottawa\",\"scoreA\":3,\"scoreB\":5}," +
-                                            "{\"id\":\"ea8a87c1-22b0-45a1-986e-43a9dfda50ec\",\"teamA\":\"Sharks de San José\",\"teamB\":\"Pitbull de Hamilton\",\"scoreA\":2,\"scoreB\":2}]";
-
-
     public static final String EXTRAS_KEY_ID = "id";
     private ArrayList<HashMap<String, String>> _matches;
 
@@ -138,14 +132,6 @@ public class MatchListView extends Activity {
 
             JSONArray jsonArray = new JSONParser().getJSONArrayFromString(json);
             return jsonArray;
-//            try {
-//                Thread.sleep(1000);
-//
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            JSONArray jArray = new JSONParser().getJSONArrayFromString(json_data);
-//            return jArray;
         }
 
         @Override

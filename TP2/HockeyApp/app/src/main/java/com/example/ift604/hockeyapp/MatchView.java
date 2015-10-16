@@ -192,7 +192,7 @@ public class MatchView extends Activity {
                     _match.teamB = c.getString(JSONTags.TEAM_B);
                     _match.scoreA = c.getInt(JSONTags.SCORE_A);
                     _match.scoreB = c.getInt(JSONTags.SCORE_B);
-                    _match.chrono = c.getJSONObject(JSONTags.CHRONO).getInt("value") / 10;
+                    _match.chrono = c.getJSONObject(JSONTags.CHRONO).getInt("value");
 
                     JSONArray goalsJSON = c.getJSONArray(JSONTags.GOALS);
                     JSONArray penaltiesJSON = c.getJSONArray(JSONTags.PENALTIES);
@@ -202,9 +202,18 @@ public class MatchView extends Activity {
 
                         String team = goal.getString(JSONTags.Goals.TEAM);
                         String scorer = goal.getString(JSONTags.Goals.PLAYER);
-                        String assists = goal.getString(JSONTags.Goals.ASSISTS);
                         //String time = goal.getString(JSONTags.Goals.TIME);
-                        _match.goals.add(new Goal(team, scorer, assists, ""));
+
+                        JSONArray assistsJSON = goal.getJSONArray(JSONTags.Goals.ASSISTS);
+                        String assists = "";
+                        for (int i = 0; i < assistsJSON.length(); ++i) {
+                            if (assists.equals("")) {
+                                assists = assistsJSON.get(i).toString();
+                            } else {
+                                assists += "\n " + assistsJSON.get(i).toString();
+                            }
+                        }
+                        _match.goals.add(new Goal(team, scorer, assists, 0));
                     }
 
                     for (int j = 0; j < penaltiesJSON.length(); ++j){
@@ -213,8 +222,8 @@ public class MatchView extends Activity {
                         String player = penalty.getString(JSONTags.Penalties.PLAYER);
                         String reason = penalty.getString(JSONTags.Penalties.INFRINGEMENT);
                         //String duration = penalty.getString(JSONTags.Penalties.DURATION);
-                        String time = penalty.getString(JSONTags.Penalties.TIME);
-                        _match.penalties.add(new Penalty(player, reason, "", time));
+                        int time = penalty.getInt(JSONTags.Penalties.TIME);
+                        _match.penalties.add(new Penalty(player, reason, 0, time));
                     }
 
                     // Mettre à jour le UI
@@ -263,11 +272,11 @@ public class MatchView extends Activity {
                 TextView textView = (TextView)tr.findViewById(R.id.match_goal_team);
                 textView.setText(goal.team);
                 textView = (TextView)tr.findViewById(R.id.match_goal_player);
-                textView.setText(goal.scorer);
+                textView.setText(goal.player);
                 textView = (TextView)tr.findViewById(R.id.match_goal_assists);
                 textView.setText(goal.assists);
                 textView = (TextView)tr.findViewById(R.id.match_goal_time);
-                textView.setText(goal.time);
+                textView.setText(goal.getTime());
 
                 table.addView(tr);
             }
@@ -290,9 +299,9 @@ public class MatchView extends Activity {
                 textView = (TextView)tr.findViewById(R.id.match_penalty_fault);
                 textView.setText(penalty.reason);
                 textView = (TextView)tr.findViewById(R.id.match_penalty_length);
-                textView.setText(penalty.duration);
+                textView.setText(Integer.toString(penalty.duration));
                 textView = (TextView)tr.findViewById(R.id.match_penalty_time);
-                textView.setText(penalty.time);
+                textView.setText(penalty.getTime());
 
                 table.addView(tr);
             }

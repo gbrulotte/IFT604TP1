@@ -113,7 +113,7 @@ public class Launcher {
 			Penalty penalty = new Penalty(player, infringement, time);
 			ListeDesMatchs.queue.add(new AjouterPunitionListeMatchsCommand(matchId, penalty));
 		} else {
-			System.err.println("addPenalty takes 3 arguments.");
+			System.err.println("addPenalty takes 4 arguments.");
 		}
 	}
 	
@@ -121,27 +121,31 @@ public class Launcher {
 		System.out.println("***** Hockey Server Menu *****");
 		System.out.println("Command's list :");
 		
-		System.out.println("\t" + CMD_ADDMATCH + " team team");
+		System.out.println("\t" + CMD_ADDMATCH + " teamA teamB");
 		
 		System.out.println("\t" + CMD_ADDGOAL + " matchId team player [assists]");
-		System.out.println("\t\t- position in list");
-		System.out.println("\t\t- team : 'A' ou 'B'");
+		System.out.println("\t\t- matchId : The uuid of the match");
+		System.out.println("\t\t- team : The name of the team");
 		System.out.println("\t\t- player : The name of the player");
-		System.out.println("\t\t- assists: Optional. The name of the players who assisted the scorer (maximum 2).");
+		System.out.println("\t\t- assists : Optional. The name of the players who assisted the scorer (maximum 2).");
 		
-		System.out.println("\t" + CMD_ADDPENALTY + " player infringement time");
+		System.out.println("\t" + CMD_ADDPENALTY + " matchId player infringement time");
+		System.out.println("\t\t- matchId : The uuid of the match");
 		System.out.println("\t\t- player : The name of the player who got a penalty");
 		System.out.println("\t\t- infringement : What the player did");
 		System.out.println("\t\t- time : When the penalty was given");
 		
-		System.out.println("\t" + CMD_BETONMATCH + " bet on a match");
-		System.out.println("\t\t- match : The match on which you want to bet");
+		System.out.println("\t" + CMD_BETONMATCH + " matchId team amount");
+		System.out.println("\t\t- matchId : The uuid of the match");
 		System.out.println("\t\t- team : The chosen team");
 		System.out.println("\t\t- amount : How much do you want to bet");
 		
 		System.out.println("\t" + CMD_SHOWMATCHLIST);
+		
+		System.out.println("\t" + CMD_LISTERPARIS);
 				
 		System.out.println("\t" + CMD_EXIT);
 		System.out.println("******************************");
 	}
 }
+

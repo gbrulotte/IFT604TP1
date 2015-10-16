@@ -6,14 +6,18 @@ package com.example.ift604.hockeyapp.models;
 public class Penalty {
     public String player;
     public String reason;
-    public String duration;
-    public String time;
+    public int duration;
+    private int time;
 
-    public Penalty(String player, String reason, String duration, String time)
+    public Penalty(String player, String reason, int duration, int time)
     {
         this.player = player;
         this.reason = reason;
         this.duration = duration;
         this.time = time;
+    }
+
+    public String getTime() {
+        return Integer.toString(MatchDetails.getPeriod(time)) + " | " + MatchDetails.getTime(time);
     }
 }

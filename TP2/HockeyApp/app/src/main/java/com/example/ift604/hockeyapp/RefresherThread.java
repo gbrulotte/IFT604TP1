@@ -50,7 +50,7 @@ public class RefresherThread implements Runnable {
         while (_thread == thisThread) {
             try {
                 Thread.sleep(_refresherInterval);
-                if (_isThreadPaused) {
+                if (_isThreadPaused && _thread != null) {
                     synchronized (_thread) {
                         while (_isThreadPaused)
                             _thread.wait();

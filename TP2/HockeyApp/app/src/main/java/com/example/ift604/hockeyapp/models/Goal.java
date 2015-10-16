@@ -5,15 +5,19 @@ package com.example.ift604.hockeyapp.models;
  */
 public class Goal {
     public String team;
-    public String scorer;
+    public String player;
     public String assists;
-    public String time;
+    private int time;
 
-    public Goal(String team, String scorer, String assists, String time)
+    public Goal(String team, String player, String assists, int time)
     {
         this.team = team;
-        this.scorer = scorer;
+        this.player = player;
         this.assists = assists;
         this.time = time;
+    }
+
+    public String getTime() {
+        return Integer.toString(MatchDetails.getPeriod(time)) + " | " + MatchDetails.getTime(time);
     }
 }

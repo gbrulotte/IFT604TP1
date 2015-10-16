@@ -23,17 +23,26 @@ public class MatchDetails {
     }
 
     public int getPeriod() {
+        return MatchDetails.getPeriod(chrono);
+    }
+
+    public String getTime() {
+        return MatchDetails.getTime(chrono);
+    }
+
+    public static int getPeriod(int chrono) {
         int tempChrono = ((chrono % _periodLength) == 0 ? chrono - 1 : chrono);
         return (3 - (tempChrono / _periodLength));
     }
 
-    // TODO: 2015-10-02 Finir le code qui extrait le temps du nombre de secondes
-    public String getTime() {
+    public static String getTime(int chrono) {
         int minutes = 20;
         int seconds = 0;
         if ((chrono % _periodLength) != 0){
             minutes = (chrono % _periodLength) / 60;
             seconds = (chrono % _periodLength) % 60;
+        } else if (chrono == 0) {
+            minutes = 0;
         }
         return String.format("%02d:%02d", minutes, seconds);
     }
