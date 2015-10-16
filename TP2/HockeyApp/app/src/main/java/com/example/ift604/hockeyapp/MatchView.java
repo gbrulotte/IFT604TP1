@@ -1,6 +1,8 @@
 package com.example.ift604.hockeyapp;
 
 import android.app.Activity;
+//import android.app.Notification;
+//import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -28,53 +30,12 @@ import java.util.UUID;
 
 public class MatchView extends Activity {
 
-	//TODO Mettre l'adresse de l'API
-    //URL to get JSON Array private static String url = "http://api.learn2crack.com/android/jsonos/";
-
-    private String strJSON =
-            "{\"" + JSONTags.TEAM_A + "\":\"Montréal\"," +
-            "\"" + JSONTags.TEAM_B + "\":\"Toronto\"," +
-            "\"" + JSONTags.SCORE_A + "\":5," +
-            "\"" + JSONTags.SCORE_B + "\":0," +
-            "\"" + JSONTags.CHRONO + "\":{\"value\":5}," +
-            "\"" + JSONTags.GOALS + "\":[{\"" + JSONTags.Goals.TEAM + "\":\"Montréal\"," +
-                                         "\"" + JSONTags.Goals.PLAYER + "\":\"PK\"," +
-                                         "\"" + JSONTags.Goals.ASSISTS + "\":\"Xxx xxx, Yyy yyy\"," +
-                                         "\"" + JSONTags.Goals.TIME + "\":\"1ere | 04:12\"}," +
-                    "{\"" + JSONTags.Goals.TEAM + "\":\"Montréal\"," +
-                            "\"" + JSONTags.Goals.PLAYER + "\":\"PK\"," +
-                            "\"" + JSONTags.Goals.ASSISTS + "\":\"Xxx xxx, Yyy yyy\"," +
-                            "\"" + JSONTags.Goals.TIME + "\":\"1ere | 04:12\"}," +
-                    "{\"" + JSONTags.Goals.TEAM + "\":\"Montréal\"," +
-                    "\"" + JSONTags.Goals.PLAYER + "\":\"PK\"," +
-                    "\"" + JSONTags.Goals.ASSISTS + "\":\"Xxx xxx, Yyy yyy\"," +
-                    "\"" + JSONTags.Goals.TIME + "\":\"1ere | 04:12\"}," +
-                    "{\"" + JSONTags.Goals.TEAM + "\":\"Montréal\"," +
-                    "\"" + JSONTags.Goals.PLAYER + "\":\"PK\"," +
-                    "\"" + JSONTags.Goals.ASSISTS + "\":\"Xxx xxx, Yyy yyy\"," +
-                    "\"" + JSONTags.Goals.TIME + "\":\"1ere | 04:19\"}," +
-                                        "{\"" + JSONTags.Goals.TEAM + "\":\"Montréal\"," +
-                                         "\"" + JSONTags.Goals.PLAYER + "\":\"Pacio\"," +
-                                         "\"" + JSONTags.Goals.ASSISTS + "\":\"Xxx xxx, Yyy yyy\"," +
-                                         "\"" + JSONTags.Goals.TIME + "\":\"1ere | 09:12\"}" +
-            "]," +
-            "\"" + JSONTags.PENALTIES + "\":[{\"" + JSONTags.Penalties.PLAYER + "\":\"subby\"," +
-                                             "\"" + JSONTags.Penalties.INFRINGEMENT + "\":\"High Stick\"," +
-                                             "\"" + JSONTags.Penalties.DURATION + "\":\"2:00\"," +
-                                             "\"" + JSONTags.Penalties.TIME + "\":\"3e | 16:24\"}," +
-                                        "{\"" + JSONTags.Penalties.PLAYER + "\":\"subby\"," +
-                                            "\"" + JSONTags.Penalties.INFRINGEMENT + "\":\"High Stick\"," +
-                                            "\"" + JSONTags.Penalties.DURATION + "\":\"2:00\"," +
-                                            "\"" + JSONTags.Penalties.TIME + "\":\"3e | 12:24\"}" +
-            "]" +
-            "}";
-
     private String _id = new UUID(0, 0).toString();
     private MatchDetails _match = null;
 
     private Handler _handler = new Handler();
     private RefresherThread _refresher;
-    private int _refreshInterval = 2 * 60 * 1000; // 2 minutes
+    private int _refreshInterval = 20 * 1000; // 2 minutes
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,21 +50,21 @@ public class MatchView extends Activity {
         startRefresher();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (_refresher.isPaused()) {
-            Log.i("MatchView", "Resuming the refresher thread");
-            _refresher.resume();
-        }
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        if (_refresher.isPaused()) {
+//            Log.i("MatchView", "Resuming the refresher thread");
+//            _refresher.resume();
+//        }
+//    }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.i("MatchView", "Pausing the refresher thread");
-        _refresher.pause();
-    }
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        Log.i("MatchView", "Pausing the refresher thread");
+//        _refresher.pause();
+//    }
 
     @Override
     protected void onDestroy() {
@@ -187,12 +148,12 @@ public class MatchView extends Activity {
             pDialog.dismiss();
             try {
                 if (c != null) {
-                    _match = new MatchDetails();
-                    _match.teamA = c.getString(JSONTags.TEAM_A);
-                    _match.teamB = c.getString(JSONTags.TEAM_B);
-                    _match.scoreA = c.getInt(JSONTags.SCORE_A);
-                    _match.scoreB = c.getInt(JSONTags.SCORE_B);
-                    _match.chrono = c.getJSONObject(JSONTags.CHRONO).getInt("value");
+                    MatchDetails tempMatch = new MatchDetails();
+                    tempMatch.teamA = c.getString(JSONTags.TEAM_A);
+                    tempMatch.teamB = c.getString(JSONTags.TEAM_B);
+                    tempMatch.scoreA = c.getInt(JSONTags.SCORE_A);
+                    tempMatch.scoreB = c.getInt(JSONTags.SCORE_B);
+                    tempMatch.chrono = c.getJSONObject(JSONTags.CHRONO).getInt("value");
 
                     JSONArray goalsJSON = c.getJSONArray(JSONTags.GOALS);
                     JSONArray penaltiesJSON = c.getJSONArray(JSONTags.PENALTIES);
@@ -213,7 +174,7 @@ public class MatchView extends Activity {
                                 assists += "\n " + assistsJSON.get(i).toString();
                             }
                         }
-                        _match.goals.add(new Goal(team, scorer, assists, 0));
+                        tempMatch.goals.add(new Goal(team, scorer, assists, 0));
                     }
 
                     for (int j = 0; j < penaltiesJSON.length(); ++j){
@@ -223,8 +184,18 @@ public class MatchView extends Activity {
                         String reason = penalty.getString(JSONTags.Penalties.INFRINGEMENT);
                         //String duration = penalty.getString(JSONTags.Penalties.DURATION);
                         int time = penalty.getInt(JSONTags.Penalties.TIME);
-                        _match.penalties.add(new Penalty(player, reason, 0, time));
+                        tempMatch.penalties.add(new Penalty(player, reason, 0, time));
                     }
+
+                    // CHECKER
+                    if (_match != null) {
+                        for (int i = _match.goals.size(); i < tempMatch.goals.size(); i++) {
+                            Goal goal = tempMatch.goals.get(i);
+                            Toast.makeText(MatchView.this, "Nouveau but pour " + goal.team + " (" + goal.player + ") !", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    _match = tempMatch;
 
                     // Mettre à jour le UI
                     TextView textView = (TextView)findViewById(R.id.match_teamA);

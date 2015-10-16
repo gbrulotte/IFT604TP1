@@ -29,16 +29,15 @@ public class MatchServer implements Runnable {
     	openServerSocket();
     	while(!isStopped()){
     		DatagramPacket receivePacket = null;
-    		byte[] receiveData = new byte[1024]; 
-    		try{
+    		byte[] receiveData = new byte[1024];
+    		try{    			 
     			receivePacket = new DatagramPacket(receiveData, receiveData.length);
     			serverSocket.receive(receivePacket);
-    			//System.out.println("!!!!!!Received data!!!!!!");
+    			this.threadPool.execute(new TraiterCommande(serverSocket, receivePacket, new String(receivePacket.getData())));
     		}
     		catch(IOException e){
     			System.out.println("Unabled to accept client connection : " + e.toString());
     		}
-    		this.threadPool.execute(new TraiterCommande(serverSocket, receivePacket, new String(receivePacket.getData())));
     	}
     	this.threadPool.shutdown();
     	System.out.println("Server stopped");

@@ -45,6 +45,7 @@ public class Launcher {
 		
 		scanner.close();
 		server.stop();
+		serveurParis.stop();
 		
 		System.out.println("Exiting...");
 	}
