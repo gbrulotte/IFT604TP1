@@ -17,7 +17,6 @@ public class Launcher {
 	private static boolean isExited = false;		
 	private static final String CMD_ADDGOAL = "addGoal";
 	private static final String CMD_ADDPENALTY = "addPenalty";
-	private static final String CMD_SHOWMATCHLIST = "showMatchList";
 	private static final String CMD_ADDMATCH = "addMatch";
 	private static final String CMD_LISTERPARIS = "listerParis";
 	private static final String CMD_EXIT = "exit";
@@ -34,12 +33,7 @@ public class Launcher {
 		
 		while (!isExited) {
 			showMenu();
-			try {
-				ListeDesMatchs.queue.put(new ListerMatchAdminCommand());
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			showMatchListCommand();
 			executeCommand(scanner.nextLine());
 		}
 		
@@ -57,14 +51,11 @@ public class Launcher {
 			isExited = true;
 		} else if (action.equalsIgnoreCase(CMD_ADDMATCH)) {
 			addMatch(splittedCommand);
-		}else if (action.equalsIgnoreCase(CMD_ADDGOAL)) {
+		} else if (action.equalsIgnoreCase(CMD_ADDGOAL)) {
 			addGoalCommand(splittedCommand);
 		} else if (action.equalsIgnoreCase(CMD_ADDPENALTY)) {
 			addPenaltyCommand(splittedCommand);
-		} else if (action.equalsIgnoreCase(CMD_SHOWMATCHLIST)) {
-			System.out.println("Afficher la liste des match...");
-		}
-		else if (action.equalsIgnoreCase(CMD_LISTERPARIS)) {
+		} else if (action.equalsIgnoreCase(CMD_LISTERPARIS)) {
 			try{
 				Paris.queue.put(new ListerParisAdminCommand());
 			}catch(Exception ex){
@@ -74,6 +65,15 @@ public class Launcher {
 		}
 		else {
 			System.err.println("Command not recognized.");
+		}
+	}
+	
+	private static void showMatchListCommand(){
+		try {
+			ListeDesMatchs.queue.put(new ListerMatchAdminCommand());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -104,18 +104,21 @@ public class Launcher {
 		}
 	}
 	
+	
 	private static void addPenaltyCommand(String[] splittedCommand) {
-		if (splittedCommand.length == 5) {
+		if (splittedCommand.length == 6) {
 			UUID matchId = UUID.fromString(splittedCommand[1]);
-			String player = splittedCommand[2];
-			String infringement = splittedCommand[3];
-			int time = Integer.parseInt(splittedCommand[4]);
-			Penalty penalty = new Penalty(player, infringement, time);
+			String team = splittedCommand[2];
+			String player = splittedCommand[3];
+			String infringement = splittedCommand[4];
+			int duration = Integer.parseInt(splittedCommand[5]);
+			Penalty penalty = new Penalty(team, player, infringement, duration, 0);
 			ListeDesMatchs.queue.add(new AjouterPunitionListeMatchsCommand(matchId, penalty));
 		} else {
-			System.err.println("addPenalty takes 3 arguments.");
+			System.err.println("addPenalty takes 5 arguments.");
 		}
 	}
+	
 	
 	private static void showMenu() {
 		System.out.println("***** Hockey Server Menu *****");
@@ -124,23 +127,22 @@ public class Launcher {
 		System.out.println("\t" + CMD_ADDMATCH + " team team");
 		
 		System.out.println("\t" + CMD_ADDGOAL + " matchId team player [assists]");
-		System.out.println("\t\t- position in list");
-		System.out.println("\t\t- team : 'A' ou 'B'");
+		System.out.println("\t\t- matchId : UUID");
+		System.out.println("\t\t- team : 'A' or 'B'");
 		System.out.println("\t\t- player : The name of the player");
 		System.out.println("\t\t- assists: Optional. The name of the players who assisted the scorer (maximum 2).");
 		
-		System.out.println("\t" + CMD_ADDPENALTY + " player infringement time");
+		System.out.println("\t" + CMD_ADDPENALTY + " matchId team player infringement duration");
+		System.out.println("\t\t- matchId : UUID");
+		System.out.println("\t\t- team : 'A' or 'B'");
 		System.out.println("\t\t- player : The name of the player who got a penalty");
 		System.out.println("\t\t- infringement : What the player did");
-		System.out.println("\t\t- time : When the penalty was given");
-		
+		System.out.println("\t\t- duration : Duration of the infringement");
 		System.out.println("\t" + CMD_BETONMATCH + " bet on a match");
 		System.out.println("\t\t- match : The match on which you want to bet");
 		System.out.println("\t\t- team : The chosen team");
 		System.out.println("\t\t- amount : How much do you want to bet");
-		
-		System.out.println("\t" + CMD_SHOWMATCHLIST);
-				
+
 		System.out.println("\t" + CMD_EXIT);
 		System.out.println("******************************");
 	}

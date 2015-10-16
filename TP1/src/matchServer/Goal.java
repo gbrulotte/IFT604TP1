@@ -6,6 +6,7 @@ public class Goal {
 	public String team;
 	public String player;
 	public List<String> assists;
+	public int time;
 	
 	public Goal(String team, String player, List<String> assists)
 	{

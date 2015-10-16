@@ -14,6 +14,5 @@ public class EnleverMatchCommand implements ICommand{
 	@Override
 	public void execute() {
 		ListeDesMatchs.matches.remove(id);
-		System.out.println("Match enlevé");
 	}
 }
