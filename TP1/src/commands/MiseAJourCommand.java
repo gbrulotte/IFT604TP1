@@ -25,6 +25,7 @@ public class MiseAJourCommand implements ICommand {
 	
 	@Override
 	public void execute() {
+		System.out.println("!!!MiseAJour!!!");
 		Gson gson = new Gson();
 		byte[] sendData = new byte[1024];
 		Match match = ListeDesMatchs.matches.get(matchId);

@@ -115,8 +115,7 @@ public class Launcher {
 			Penalty penalty = new Penalty(team, player, infringement, duration, 0);
 			ListeDesMatchs.queue.add(new AjouterPunitionListeMatchsCommand(matchId, penalty));
 		} else {
-			System.err.println("addPenalty takes 5 arguments.");
-		}
+			System.err.println("addPenalty takes 5 arguments.");		}
 	}
 	
 	
@@ -125,12 +124,13 @@ public class Launcher {
 		System.out.println("Command's list :");
 		
 		System.out.println("\t" + CMD_ADDMATCH + " team team");
+		System.out.println("\t" + CMD_ADDMATCH + " teamA teamB");
 		
 		System.out.println("\t" + CMD_ADDGOAL + " matchId team player [assists]");
 		System.out.println("\t\t- matchId : UUID");
 		System.out.println("\t\t- team : 'A' or 'B'");
 		System.out.println("\t\t- player : The name of the player");
-		System.out.println("\t\t- assists: Optional. The name of the players who assisted the scorer (maximum 2).");
+		System.out.println("\t\t- assists : Optional. The name of the players who assisted the scorer (maximum 2).");
 		
 		System.out.println("\t" + CMD_ADDPENALTY + " matchId team player infringement duration");
 		System.out.println("\t\t- matchId : UUID");
@@ -138,12 +138,13 @@ public class Launcher {
 		System.out.println("\t\t- player : The name of the player who got a penalty");
 		System.out.println("\t\t- infringement : What the player did");
 		System.out.println("\t\t- duration : Duration of the infringement");
-		System.out.println("\t" + CMD_BETONMATCH + " bet on a match");
-		System.out.println("\t\t- match : The match on which you want to bet");
+
+		System.out.println("\t" + CMD_BETONMATCH + " matchId team amount");
+		System.out.println("\t\t- matchId : The uuid of the match");
 		System.out.println("\t\t- team : The chosen team");
 		System.out.println("\t\t- amount : How much do you want to bet");
-
-		System.out.println("\t" + CMD_EXIT);
+		System.out.println("\t" + CMD_LISTERPARIS);		System.out.println("\t" + CMD_EXIT);
 		System.out.println("******************************");
 	}
 }
+
