@@ -24,6 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 public class MatchView extends Activity {
@@ -167,18 +169,19 @@ public class MatchView extends Activity {
         @Override
         protected JSONObject doInBackground(String... args) {
 
-            JSONObject json = null;
+            String json = null;
+            JSONObject jsonObject = null;
 
             try {
-                Thread.sleep(1000);
+                UDPHelper udp = new UDPHelper("10.0.2.2", 8080);
+                json = udp.sendAndReceive("MiseAJour~"+_id);
                 // Getting JSON from URL
                 //TODO change for that: JSONObject json = jParser.getJSONFromUrl(url);
-                json = new JSONObject(strJSON);
-            } catch (JSONException e) {e.printStackTrace();} catch (InterruptedException e) {
+                jsonObject = new JSONObject(json);
+            }  catch (Exception e) {
                 e.printStackTrace();
             }
-
-            return json;
+            return jsonObject;
         }
 
         @Override

@@ -29,14 +29,11 @@ public class TraiterCommande implements Runnable {
 			case "ListerMatch":
 				ListeDesMatchs.queue.put(new ListerMatchCommmand(serverSocket, client));
 				break;
-			/*case "SuivreMatch":
-				ListeDesMatchs.queue.put(new SuivreMatchCommand(client, typeCommand[1]));
-				break;*/
 			case "MiseAJour":
 				ListeDesMatchs.queue.put(new MiseAJourCommand(serverSocket, client, UUID.fromString(typeCommand[1])));
 				break;
 			default:
-				System.out.println("Commande inconnue");
+				System.out.println("Commande inconnue: " + typeCommand[0]);
 				break;
 			}
 		} catch (InterruptedException e) {

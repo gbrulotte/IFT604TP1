@@ -31,7 +31,7 @@ public class UDPHelper {
 
         _socket.close();
 
-        return toReturn;
+        return toReturn.trim();
     }
 
     private boolean send(String data) {

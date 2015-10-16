@@ -15,9 +15,6 @@ public class MatchServer implements Runnable {
     protected Thread       runningThread= null;
     protected ExecutorService threadPool = null;
     
-    byte[] receiveData = new byte[1024];             
-    byte[] sendData = new byte[1024];
-    
     public MatchServer(int serverPort, int nbThreads){
     	this.serverPort = serverPort;
     	this.threadPool = Executors.newFixedThreadPool(nbThreads);
@@ -32,6 +29,7 @@ public class MatchServer implements Runnable {
     	openServerSocket();
     	while(!isStopped()){
     		DatagramPacket receivePacket = null;
+    		byte[] receiveData = new byte[1024]; 
     		try{
     			receivePacket = new DatagramPacket(receiveData, receiveData.length);
     			serverSocket.receive(receivePacket);
@@ -45,6 +43,8 @@ public class MatchServer implements Runnable {
     	this.threadPool.shutdown();
     	System.out.println("Server stopped");
     }
+    
+    
     
 	private void openServerSocket() {
 		try{
