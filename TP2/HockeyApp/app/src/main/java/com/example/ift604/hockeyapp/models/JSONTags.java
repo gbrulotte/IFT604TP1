@@ -15,14 +15,14 @@ public final class JSONTags {
 
     public final class Goals {
         public static final String TEAM = "team";
-        public static final String SCORER = "scorer";
+        public static final String PLAYER = "player";
         public static final String ASSISTS = "assists";
         public static final String TIME = "time";
     }
 
     public final class Penalties {
         public static final String PLAYER = "player";
-        public static final String REASON = "reason";
+        public static final String INFRINGEMENT = "infringement";
         public static final String DURATION = "duration";
         public static final String TIME = "time";
     }

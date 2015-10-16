@@ -24,8 +24,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.UUID;
 
 public class MatchView extends Activity {
@@ -40,32 +38,32 @@ public class MatchView extends Activity {
             "\"" + JSONTags.SCORE_B + "\":0," +
             "\"" + JSONTags.CHRONO + "\":{\"value\":5}," +
             "\"" + JSONTags.GOALS + "\":[{\"" + JSONTags.Goals.TEAM + "\":\"Montréal\"," +
-                                         "\"" + JSONTags.Goals.SCORER + "\":\"PK\"," +
+                                         "\"" + JSONTags.Goals.PLAYER + "\":\"PK\"," +
                                          "\"" + JSONTags.Goals.ASSISTS + "\":\"Xxx xxx, Yyy yyy\"," +
                                          "\"" + JSONTags.Goals.TIME + "\":\"1ere | 04:12\"}," +
                     "{\"" + JSONTags.Goals.TEAM + "\":\"Montréal\"," +
-                            "\"" + JSONTags.Goals.SCORER + "\":\"PK\"," +
+                            "\"" + JSONTags.Goals.PLAYER + "\":\"PK\"," +
                             "\"" + JSONTags.Goals.ASSISTS + "\":\"Xxx xxx, Yyy yyy\"," +
                             "\"" + JSONTags.Goals.TIME + "\":\"1ere | 04:12\"}," +
                     "{\"" + JSONTags.Goals.TEAM + "\":\"Montréal\"," +
-                    "\"" + JSONTags.Goals.SCORER + "\":\"PK\"," +
+                    "\"" + JSONTags.Goals.PLAYER + "\":\"PK\"," +
                     "\"" + JSONTags.Goals.ASSISTS + "\":\"Xxx xxx, Yyy yyy\"," +
                     "\"" + JSONTags.Goals.TIME + "\":\"1ere | 04:12\"}," +
                     "{\"" + JSONTags.Goals.TEAM + "\":\"Montréal\"," +
-                    "\"" + JSONTags.Goals.SCORER + "\":\"PK\"," +
+                    "\"" + JSONTags.Goals.PLAYER + "\":\"PK\"," +
                     "\"" + JSONTags.Goals.ASSISTS + "\":\"Xxx xxx, Yyy yyy\"," +
                     "\"" + JSONTags.Goals.TIME + "\":\"1ere | 04:19\"}," +
                                         "{\"" + JSONTags.Goals.TEAM + "\":\"Montréal\"," +
-                                         "\"" + JSONTags.Goals.SCORER + "\":\"Pacio\"," +
+                                         "\"" + JSONTags.Goals.PLAYER + "\":\"Pacio\"," +
                                          "\"" + JSONTags.Goals.ASSISTS + "\":\"Xxx xxx, Yyy yyy\"," +
                                          "\"" + JSONTags.Goals.TIME + "\":\"1ere | 09:12\"}" +
             "]," +
             "\"" + JSONTags.PENALTIES + "\":[{\"" + JSONTags.Penalties.PLAYER + "\":\"subby\"," +
-                                             "\"" + JSONTags.Penalties.REASON + "\":\"High Stick\"," +
+                                             "\"" + JSONTags.Penalties.INFRINGEMENT + "\":\"High Stick\"," +
                                              "\"" + JSONTags.Penalties.DURATION + "\":\"2:00\"," +
                                              "\"" + JSONTags.Penalties.TIME + "\":\"3e | 16:24\"}," +
                                         "{\"" + JSONTags.Penalties.PLAYER + "\":\"subby\"," +
-                                            "\"" + JSONTags.Penalties.REASON + "\":\"High Stick\"," +
+                                            "\"" + JSONTags.Penalties.INFRINGEMENT + "\":\"High Stick\"," +
                                             "\"" + JSONTags.Penalties.DURATION + "\":\"2:00\"," +
                                             "\"" + JSONTags.Penalties.TIME + "\":\"3e | 12:24\"}" +
             "]" +
@@ -194,7 +192,7 @@ public class MatchView extends Activity {
                     _match.teamB = c.getString(JSONTags.TEAM_B);
                     _match.scoreA = c.getInt(JSONTags.SCORE_A);
                     _match.scoreB = c.getInt(JSONTags.SCORE_B);
-                    _match.chrono = c.getJSONObject(JSONTags.CHRONO).getInt("value");
+                    _match.chrono = c.getJSONObject(JSONTags.CHRONO).getInt("value") / 10;
 
                     JSONArray goalsJSON = c.getJSONArray(JSONTags.GOALS);
                     JSONArray penaltiesJSON = c.getJSONArray(JSONTags.PENALTIES);
@@ -203,20 +201,20 @@ public class MatchView extends Activity {
                         JSONObject goal = goalsJSON.getJSONObject(j);
 
                         String team = goal.getString(JSONTags.Goals.TEAM);
-                        String scorer = goal.getString(JSONTags.Goals.SCORER);
+                        String scorer = goal.getString(JSONTags.Goals.PLAYER);
                         String assists = goal.getString(JSONTags.Goals.ASSISTS);
-                        String time = goal.getString(JSONTags.Goals.TIME);
-                        _match.goals.add(new Goal(team, scorer, assists, time));
+                        //String time = goal.getString(JSONTags.Goals.TIME);
+                        _match.goals.add(new Goal(team, scorer, assists, ""));
                     }
 
                     for (int j = 0; j < penaltiesJSON.length(); ++j){
                         JSONObject penalty = penaltiesJSON.getJSONObject(j);
 
                         String player = penalty.getString(JSONTags.Penalties.PLAYER);
-                        String reason = penalty.getString(JSONTags.Penalties.REASON);
-                        String duration = penalty.getString(JSONTags.Penalties.DURATION);
+                        String reason = penalty.getString(JSONTags.Penalties.INFRINGEMENT);
+                        //String duration = penalty.getString(JSONTags.Penalties.DURATION);
                         String time = penalty.getString(JSONTags.Penalties.TIME);
-                        _match.penalties.add(new Penalty(player, reason, duration, time));
+                        _match.penalties.add(new Penalty(player, reason, "", time));
                     }
 
                     // Mettre à jour le UI
