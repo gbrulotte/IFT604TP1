@@ -163,7 +163,7 @@ public class MatchView extends Activity {
 
                         String team = goal.getString(JSONTags.Goals.TEAM);
                         String scorer = goal.getString(JSONTags.Goals.PLAYER);
-                        //String time = goal.getString(JSONTags.Goals.TIME);
+                        int time = goal.getInt(JSONTags.Goals.TIME);
 
                         JSONArray assistsJSON = goal.getJSONArray(JSONTags.Goals.ASSISTS);
                         String assists = "";
@@ -174,24 +174,33 @@ public class MatchView extends Activity {
                                 assists += "\n " + assistsJSON.get(i).toString();
                             }
                         }
-                        tempMatch.goals.add(new Goal(team, scorer, assists, 0));
+                        tempMatch.goals.add(new Goal(team, scorer, assists, time));
                     }
 
                     for (int j = 0; j < penaltiesJSON.length(); ++j){
                         JSONObject penalty = penaltiesJSON.getJSONObject(j);
 
+                        String team = penalty.getString(JSONTags.Penalties.TEAM);
                         String player = penalty.getString(JSONTags.Penalties.PLAYER);
                         String reason = penalty.getString(JSONTags.Penalties.INFRINGEMENT);
-                        //String duration = penalty.getString(JSONTags.Penalties.DURATION);
+                        int duration = penalty.getInt(JSONTags.Penalties.DURATION);
                         int time = penalty.getInt(JSONTags.Penalties.TIME);
-                        tempMatch.penalties.add(new Penalty(player, reason, 0, time));
+                        tempMatch.penalties.add(new Penalty(team, player, reason, duration, time));
                     }
 
-                    // CHECKER
                     if (_match != null) {
+                        // Regarder s'il y a des nouveaux buts
                         for (int i = _match.goals.size(); i < tempMatch.goals.size(); i++) {
                             Goal goal = tempMatch.goals.get(i);
-                            Toast.makeText(MatchView.this, "Nouveau but pour " + goal.team + " (" + goal.player + ") !", Toast.LENGTH_SHORT).show();
+                            String message = String.format("Nouveau but pour %s (%s) !", goal.team, goal.player);
+                            Toast.makeText(MatchView.this, message, Toast.LENGTH_LONG).show();
+                        }
+
+                        // Regarder s'il y a des nouvelles pénalités
+                        for (int i = _match.penalties.size(); i < tempMatch.penalties.size(); i++) {
+                            Penalty penalty = tempMatch.penalties.get(i);
+                            String message = String.format("Penalité pour %s (%s). %d minutes pour %s.", penalty.player, penalty.team, penalty.duration, penalty.infringement);
+                            Toast.makeText(MatchView.this, message, Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -265,10 +274,12 @@ public class MatchView extends Activity {
                 Penalty penalty = _match.penalties.get(i);
                 View tr = inflater.inflate(R.layout.match_view_penalty_row, null);
 
-                TextView textView = (TextView)tr.findViewById(R.id.match_penalty_player);
+                TextView textView = (TextView)tr.findViewById(R.id.match_penalty_team);
+                textView.setText(penalty.team);
+                textView = (TextView)tr.findViewById(R.id.match_penalty_player);
                 textView.setText(penalty.player);
                 textView = (TextView)tr.findViewById(R.id.match_penalty_fault);
-                textView.setText(penalty.reason);
+                textView.setText(penalty.infringement);
                 textView = (TextView)tr.findViewById(R.id.match_penalty_length);
                 textView.setText(Integer.toString(penalty.duration));
                 textView = (TextView)tr.findViewById(R.id.match_penalty_time);

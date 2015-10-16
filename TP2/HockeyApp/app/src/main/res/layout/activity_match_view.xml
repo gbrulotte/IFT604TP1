@@ -59,7 +59,7 @@
                     android:paddingBottom="5dp"
                     android:layout_height="wrap_content"
                     android:textSize="16dp"
-                    android:text="Score"/>
+                    android:text="@string/caption_score"/>
             </TableRow>
             <TableRow
                 android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:textSize="16dp"
-                    android:text="Période"/>
+                    android:text="@string/caption_period"/>
                 <TextView
                     android:layout_weight="1"
                     android:textColor="#fff"
@@ -108,7 +108,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:textSize="16dp"
-                    android:text="Temps"/>
+                    android:text="@string/caption_time"/>
             </TableRow>
             <TableRow
                 android:layout_height="wrap_content"
@@ -149,34 +149,34 @@
                     android:paddingBottom="5dp"
                     android:layout_height="wrap_content"
                     android:textSize="16dp"
-                    android:text="Buts"/>
+                    android:text="@string/caption_goals"/>
             </TableRow>
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent">
                 <TextView
-                    android:text="Équipe"
+                    android:text="@string/caption_team"
                     android:textStyle="bold"
                     android:layout_weight="1"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:gravity="center"/>
                 <TextView
-                    android:text="Marqueur"
+                    android:text="@string/caption_player"
                     android:textStyle="bold"
                     android:layout_weight="1"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:gravity="center"/>
                 <TextView
-                    android:text="Aide(s)"
+                    android:text="@string/caption_assists"
                     android:textStyle="bold"
                     android:layout_weight="1"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:gravity="center"/>
                 <TextView
-                    android:text="Temps"
+                    android:text="@string/caption_time"
                     android:textStyle="bold"
                     android:layout_weight="1"
                     android:paddingTop="5dp"
@@ -205,34 +205,41 @@
                     android:paddingBottom="5dp"
                     android:layout_height="wrap_content"
                     android:textSize="16dp"
-                    android:text="Pénalités"/>
+                    android:text="@string/caption_penalties"/>
             </TableRow>
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent">
                 <TextView
-                    android:text="Joueur"
+                    android:text="@string/caption_team"
                     android:textStyle="bold"
                     android:layout_weight="1"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:gravity="center"/>
                 <TextView
-                    android:text="Faute"
+                    android:text="@string/caption_player"
                     android:textStyle="bold"
                     android:layout_weight="1"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:gravity="center"/>
                 <TextView
-                    android:text="Durée"
+                    android:text="@string/caption_infringement"
                     android:textStyle="bold"
                     android:layout_weight="1"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:gravity="center"/>
                 <TextView
-                    android:text="Temps"
+                    android:text="@string/caption_duration"
+                    android:textStyle="bold"
+                    android:layout_weight="1"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:gravity="center"/>
+                <TextView
+                    android:text="@string/caption_time"
                     android:textStyle="bold"
                     android:layout_weight="1"
                     android:paddingTop="5dp"

@@ -7,4 +7,14 @@
     <string name="title_activity_match_view">MatchView</string>
 
     <string name="hello_world">Hello world!</string>
+    <string name="caption_player">Joueur</string>
+    <string name="caption_assists">Aide(s)</string>
+    <string name="caption_time">Temps</string>
+    <string name="caption_team">Équipe</string>
+    <string name="caption_period">Période</string>
+    <string name="caption_score">Pointage</string>
+    <string name="caption_goals">But(s)</string>
+    <string name="caption_penalties">Pénalité(s)</string>
+    <string name="caption_infringement">Faute</string>
+    <string name="caption_duration">Durée</string>
 </resources>

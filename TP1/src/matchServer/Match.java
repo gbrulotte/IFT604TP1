@@ -11,8 +11,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import parisServer.Paris;
 import commands.EnleverMatchCommand;
 import commands.ICommand;
+import commands.SendBetResultCommand;
 
 public class Match implements Serializable, Runnable {
 	/**
@@ -24,16 +26,35 @@ public class Match implements Serializable, Runnable {
 	public String teamB;
 	public int scoreA;
 	public int scoreB;
-	public AtomicInteger chrono = new AtomicInteger(36000);	public List<Goal> goals = Collections.synchronizedList(new ArrayList<Goal>());
+	public AtomicInteger chrono = new AtomicInteger(3600);	
+	public List<Goal> goals = Collections.synchronizedList(new ArrayList<Goal>());
 	public List<Penalty> penalties = Collections.synchronizedList(new ArrayList<Penalty>());
-	
+	public boolean matchDone;
 	public final static BlockingQueue<ICommand> queue = new ArrayBlockingQueue<ICommand>(10);
-
+	public Match currentMatch = this;
+	
 	public Match(String teamA, String teamB, final UUID id) {
 		this.teamA = teamA;
 		this.teamB = teamB;
 		this.id = id;
+		
+		new Timer().scheduleAtFixedRate( 
+		        new TimerTask() {
+		            @Override
+		            public void run() {
+		            	int oldValue = chrono.getAndSet(chrono.get() - 30);
+		            	if (oldValue == 30) {
+		            		try {
+		            			matchDone = true;
+		            			Paris.queue.put(new SendBetResultCommand(currentMatch));
+		            			//ListeDesMatchs.queue.put(new EnleverMatchCommand(id));
+		            		} catch (InterruptedException e) {
+		            			System.out.println("Problème avec le timer du match " + id + ": " + e.toString());
+		            		}
+		            	}		            		
+		            }
 		        }, 30000, 30000);
+	}
 
 	public void run() {
 		while (!matchDone) {
@@ -41,7 +62,8 @@ public class Match implements Serializable, Runnable {
 				ICommand command = queue.take();
 				command.execute();
 			} catch (InterruptedException e) {
-				System.out.println("Probl?me dans la BlockingQueue de Match " + e.toString());			}
+				System.out.println("Probl?me dans la BlockingQueue de Match " + e.toString());			
+			}
 		}
 	}
 

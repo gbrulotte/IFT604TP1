@@ -21,6 +21,7 @@ public final class JSONTags {
     }
 
     public final class Penalties {
+        public static final String TEAM = "team";
         public static final String PLAYER = "player";
         public static final String INFRINGEMENT = "infringement";
         public static final String DURATION = "duration";
