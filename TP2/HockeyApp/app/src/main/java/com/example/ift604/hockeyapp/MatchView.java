@@ -1,8 +1,6 @@
 package com.example.ift604.hockeyapp;
 
 import android.app.Activity;
-//import android.app.Notification;
-//import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -13,6 +11,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +28,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class MatchView extends Activity {
@@ -35,7 +39,11 @@ public class MatchView extends Activity {
 
     private Handler _handler = new Handler();
     private RefresherThread _refresher;
-    private int _refreshInterval = 20 * 1000; // 2 minutes
+    private int _refreshInterval = 2 * 60 * 1000; // 2 minutes
+
+    private boolean _hasBet = false;
+    private int _betAmount = 0;
+    private String _betTeam = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +53,54 @@ public class MatchView extends Activity {
         if (bundle != null) {
             _id = bundle.getString(MatchListView.EXTRAS_KEY_ID);
         }
-        //Toast.makeText(MatchView.this, _id.toString(), Toast.LENGTH_SHORT).show();
+
         loadMatchAsync();
         startRefresher();
+
+        // Checker si on a déjà betté
+        refreshSpinnerTeam(Arrays.asList(""));
+
+        // Ajouter l'event sur le clic si on a pas bet
+        Button btnBet = (Button)findViewById(R.id.match_btnBetAmount);
+        btnBet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditText textView = (EditText) findViewById(R.id.match_txtBetAmount);
+                Spinner spinner = (Spinner) findViewById(R.id.match_spBetTeam);
+
+                int amount = Integer.parseInt(textView.getText().toString());
+                String team = spinner.getSelectedItem().toString();
+                if (amount > 0 && !team.equals("")) {
+                    hideBetSectionAndShowAmount(amount, team);
+                } else if (amount <= 0) {
+                    Toast.makeText(MatchView.this, "Vous devez entrer un montant plus grand que 0 $.", Toast.LENGTH_SHORT).show();
+                } else if (team.equals("")) {
+                    Toast.makeText(MatchView.this, "Vous devez choisir une équipe sur laquelle parier.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // Cacher la section et afficher le montant
+
+        int amount = 10; // TODO: Aller chercher le montant dans le Bundle
+        String team = ""; // TODO: Aller chercher l'équipe dans le Bundle
+       // hideBetSectionAndShowAmount(amount, team);
+    }
+
+    private void hideBetSectionAndShowAmount(int amount, String team) {
+        _hasBet = true;
+        _betAmount = amount;
+        _betTeam = team;
+        hideBetSectionAndShowMessage(String.format("Vous avez parié %d $ sur %s pour ce match.", _betAmount, _betTeam));
+    }
+
+    private void hideBetSectionAndShowMessage(String message) {
+        View section = findViewById(R.id.match_section_bet);
+        section.setVisibility(View.GONE);
+
+        TextView textView = (TextView)findViewById(R.id.match_lblBet);
+        textView.setVisibility(View.VISIBLE);
+        textView.setText(message);
     }
 
 //    @Override
@@ -112,6 +165,14 @@ public class MatchView extends Activity {
         Log.i("MatchView", "Starting the refresher thread");
         _refresher.start();
     }
+
+    private void refreshSpinnerTeam(List<String> values) {
+        Spinner spinner = (Spinner)findViewById(R.id.match_spBetTeam);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(MatchView.this, android.R.layout.simple_spinner_item, values);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+    }
 	
 	private class JSONParse extends AsyncTask<String, String, JSONObject> {
         private ProgressDialog pDialog;
@@ -133,9 +194,7 @@ public class MatchView extends Activity {
 
             try {
                 UDPHelper udp = new UDPHelper("10.0.2.2", 8080);
-                json = udp.sendAndReceive("MiseAJour~"+_id);
-                // Getting JSON from URL
-                //TODO change for that: JSONObject json = jParser.getJSONFromUrl(url);
+                json = udp.sendAndReceive("MiseAJour~" + _id);
                 jsonObject = new JSONObject(json);
             }  catch (Exception e) {
                 e.printStackTrace();
@@ -221,6 +280,12 @@ public class MatchView extends Activity {
                     textView.setText(Integer.toString(_match.getPeriod()));
                     textView = (TextView)findViewById(R.id.match_time);
                     textView.setText(_match.getTime());
+
+                    MatchView.this.refreshSpinnerTeam(Arrays.asList("", _match.teamA, _match.teamB));
+
+                    if (!_hasBet && _match.getPeriod() > 2) {
+                        hideBetSectionAndShowMessage("Vous ne pouvez plus parier sur ce match.");
+                    }
 
                     // Affichage des buts
                     displayGoals();

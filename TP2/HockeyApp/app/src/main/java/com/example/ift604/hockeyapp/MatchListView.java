@@ -43,21 +43,21 @@ public class MatchListView extends Activity {
         startRefresher();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (_refresher.isPaused()) {
-            Log.i("MatchListView", "Resuming the refresher thread");
-            _refresher.resume();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.i("MatchListView", "Pausing the refresher thread");
-        _refresher.pause();
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        if (_refresher.isPaused()) {
+//            Log.i("MatchListView", "Resuming the refresher thread");
+//            _refresher.resume();
+//        }
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        Log.i("MatchListView", "Pausing the refresher thread");
+//        _refresher.pause();
+//    }
 
     @Override
     protected void onDestroy() {

@@ -248,5 +248,38 @@
             </TableRow>
         </TableLayout>
 
+        <LinearLayout
+            android:id="@+id/match_section_bet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="20dp">
+            <EditText
+                android:id="@+id/match_txtBetAmount"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="number"
+                android:layout_weight="1">
+            </EditText>
+            <Spinner
+                android:id="@+id/match_spBetTeam"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+            </Spinner>
+            <Button
+                android:id="@+id/match_btnBetAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/caption_betbtn" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/match_lblBet"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Vous avez parié 1000$ sur ce match !"
+            android:paddingTop="20dp"
+            android:paddingRight="@dimen/match_view_padding_table"
+            android:visibility="gone">
+        </TextView>
     </LinearLayout>
 </ScrollView>

@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.ift604.hockeyapp" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_hockey_stick"
@@ -9,9 +11,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MatchListView"
-            android:label="@string/app_name"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait">
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -19,10 +19,14 @@
         </activity>
         <activity
             android:name=".MatchView"
-            android:label="@string/app_name"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" >
+            android:label="@string/caption_matchdetails">
         </activity>
+
+        <service
+            android:name=".ParisService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
+
 </manifest>

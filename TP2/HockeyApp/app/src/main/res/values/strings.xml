@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Hockey App</string>
+    <string name="app_name">HockeyNite</string>
     <string name="title_activity_match_list_view">MatchListView</string>
 
     <string name="action_settings">Settings</string>
@@ -17,4 +17,6 @@
     <string name="caption_penalties">Pénalité(s)</string>
     <string name="caption_infringement">Faute</string>
     <string name="caption_duration">Durée</string>
+    <string name="caption_betbtn">Parier !</string>
+    <string name="caption_matchdetails">Détail du match</string>
 </resources>
