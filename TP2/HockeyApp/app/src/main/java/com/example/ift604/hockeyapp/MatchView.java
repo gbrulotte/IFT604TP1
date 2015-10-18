@@ -29,6 +29,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -81,7 +84,7 @@ public class MatchView extends Activity {
                 int amount = textView.getText().toString().equals("") ? 0 : Integer.parseInt(textView.getText().toString());
                 String team = spinner.getSelectedItem().toString();
                 if (amount > 0 && !team.equals("")) {
-                    saveBetData(amount, team);
+                    saveBetDataAndSendToServer(amount, team);
                     hideBetSectionAndShowAmount(amount, team);
                 } else if (amount <= 0) {
                     Toast.makeText(MatchView.this, "Vous devez entrer un montant plus grand que 0 $.", Toast.LENGTH_SHORT).show();
@@ -196,12 +199,46 @@ public class MatchView extends Activity {
         textView.setText(message);
     }
 
-    private void saveBetData(int amount, String team) {
+    private void saveBetDataAndSendToServer(int amount, String team) {
         SharedPreferences.Editor edit = _betsData.edit();
         edit.putInt(_id + "_amount", amount);
         edit.putString(_id + "_team", team);
         edit.commit();
         Log.i("MatchView", "Saved bet");
+
+        new SendBet().execute(team, Integer.toString(amount));
+    }
+
+    private class SendBet extends AsyncTask<String, Void, Exception> {
+
+        @Override
+        protected Exception doInBackground(String... params) {
+
+            Exception exception = null;
+            int amount = Integer.parseInt(params[1]);
+            String team = params[0];
+
+            try {
+                Socket clientSocket = new Socket(InetAddress.getByName("10.0.2.2"), 8081);
+                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+                outToServer.writeBytes(String.format("Bet~%s~%s~%d", _id, team, amount));
+                clientSocket.close();
+                Log.i("MatchView", "Sent bet to server");
+            } catch (Exception ex) {
+                exception = ex;
+            }
+            return exception;
+        }
+
+        @Override
+        protected void onPostExecute(Exception result) {
+            super.onPostExecute(result);
+
+            if (result != null) {
+                Toast.makeText(MatchView.this, "Une erreur est survenue lors de l'envoi du pari au serveur.", Toast.LENGTH_SHORT).show();
+                result.printStackTrace();
+            }
+        }
     }
 	
 	private class JSONParse extends AsyncTask<String, String, JSONObject> {
