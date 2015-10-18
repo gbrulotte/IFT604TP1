@@ -3,6 +3,7 @@ package com.example.ift604.hockeyapp;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +35,8 @@ import java.util.UUID;
 
 public class MatchView extends Activity {
 
+    private static final String BET_KEY = "betsData";
+
     private String _id = new UUID(0, 0).toString();
     private MatchDetails _match = null;
 
@@ -45,13 +48,20 @@ public class MatchView extends Activity {
     private int _betAmount = 0;
     private String _betTeam = null;
 
+    // Pour sauvegarder le data
+    private SharedPreferences _betsData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_match_view);
         Bundle bundle = getIntent().getExtras();
+
         if (bundle != null) {
             _id = bundle.getString(MatchListView.EXTRAS_KEY_ID);
+        } else {
+            Toast.makeText(MatchView.this, "L'identifiant du match n'a pas pu être chargé. Veuillez réessayer.", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
         loadMatchAsync();
@@ -68,9 +78,10 @@ public class MatchView extends Activity {
                 EditText textView = (EditText) findViewById(R.id.match_txtBetAmount);
                 Spinner spinner = (Spinner) findViewById(R.id.match_spBetTeam);
 
-                int amount = Integer.parseInt(textView.getText().toString());
+                int amount = textView.getText().toString().equals("") ? 0 : Integer.parseInt(textView.getText().toString());
                 String team = spinner.getSelectedItem().toString();
                 if (amount > 0 && !team.equals("")) {
+                    saveBetData(amount, team);
                     hideBetSectionAndShowAmount(amount, team);
                 } else if (amount <= 0) {
                     Toast.makeText(MatchView.this, "Vous devez entrer un montant plus grand que 0 $.", Toast.LENGTH_SHORT).show();
@@ -80,27 +91,15 @@ public class MatchView extends Activity {
             }
         });
 
-        // Cacher la section et afficher le montant
+        // Va chercher les données sauvegardées sur les paris
+        _betsData = getSharedPreferences(BET_KEY, MODE_PRIVATE);
 
-        int amount = 10; // TODO: Aller chercher le montant dans le Bundle
-        String team = ""; // TODO: Aller chercher l'équipe dans le Bundle
-       // hideBetSectionAndShowAmount(amount, team);
-    }
+        int amount = _betsData.getInt(_id + "_amount", 0);
+        String team = _betsData.getString(_id + "_team", null);
 
-    private void hideBetSectionAndShowAmount(int amount, String team) {
-        _hasBet = true;
-        _betAmount = amount;
-        _betTeam = team;
-        hideBetSectionAndShowMessage(String.format("Vous avez parié %d $ sur %s pour ce match.", _betAmount, _betTeam));
-    }
-
-    private void hideBetSectionAndShowMessage(String message) {
-        View section = findViewById(R.id.match_section_bet);
-        section.setVisibility(View.GONE);
-
-        TextView textView = (TextView)findViewById(R.id.match_lblBet);
-        textView.setVisibility(View.VISIBLE);
-        textView.setText(message);
+        if (amount > 0 && team != null){
+            hideBetSectionAndShowAmount(amount, team);
+        }
     }
 
 //    @Override
@@ -125,6 +124,13 @@ public class MatchView extends Activity {
         Log.i("MatchView", "Stopping the refresher thread");
         _refresher.stop();
     }
+
+//    @Override
+//    protected void onSaveInstanceState(Bundle savedInstanceState) {
+//        super.onSaveInstanceState(savedInstanceState);
+//        savedInstanceState.putInt(_id.toString() + "_amount", _betAmount);
+//        savedInstanceState.putString(_id.toString() + "_team", _betTeam);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -172,6 +178,30 @@ public class MatchView extends Activity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(MatchView.this, android.R.layout.simple_spinner_item, values);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+    }
+
+    private void hideBetSectionAndShowAmount(int amount, String team) {
+        _hasBet = true;
+        _betAmount = amount;
+        _betTeam = team;
+        hideBetSectionAndShowMessage(String.format("Vous avez parié %d $ sur %s pour ce match.", _betAmount, _betTeam));
+    }
+
+    private void hideBetSectionAndShowMessage(String message) {
+        View section = findViewById(R.id.match_section_bet);
+        section.setVisibility(View.GONE);
+
+        TextView textView = (TextView)findViewById(R.id.match_lblBet);
+        textView.setVisibility(View.VISIBLE);
+        textView.setText(message);
+    }
+
+    private void saveBetData(int amount, String team) {
+        SharedPreferences.Editor edit = _betsData.edit();
+        edit.putInt(_id + "_amount", amount);
+        edit.putString(_id + "_team", team);
+        edit.commit();
+        Log.i("MatchView", "Saved bet");
     }
 	
 	private class JSONParse extends AsyncTask<String, String, JSONObject> {
