@@ -122,6 +122,8 @@ public class MatchListView extends Activity {
         protected void onPostExecute(JSONArray jArray) {
             super.onPostExecute(jArray);
             pDialog.dismiss();
+            if(jArray == null)
+                return;
             try {
                 _matches = new ArrayList<>();
                 for (int i = 0; i < jArray.length(); i++) {

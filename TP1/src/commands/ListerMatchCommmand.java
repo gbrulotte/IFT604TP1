@@ -23,7 +23,12 @@ public class ListerMatchCommmand implements ICommand{
 	public void execute(){
 		System.out.println("!!!!!ListerMatchCommand!!!!!!");		Gson gson = new Gson();
 		byte[] sendData = new byte[1024];
-		sendData = gson.toJson(ListeDesMatchs.matches.values()).getBytes();
+		
+		if(ListeDesMatchs.matches.size() > 0)
+			sendData = gson.toJson(ListeDesMatchs.matches.values()).getBytes();
+		else
+			sendData = gson.toJson("\r\n").getBytes();
+		
 		try {
 			serverSocket.send(new DatagramPacket(sendData, sendData.length, client.address, client.port));
 		} catch (IOException e) {

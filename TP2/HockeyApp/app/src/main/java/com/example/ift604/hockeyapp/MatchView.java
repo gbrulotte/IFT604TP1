@@ -46,7 +46,7 @@ public class MatchView extends Activity {
 
     private Handler _handler = new Handler();
     private RefresherThread _refresher;
-    private int _refreshInterval = 2 * 10 * 1000; // 2 minutes
+    private int _refreshInterval = 2 * 60 * 1000; // 2 minutes
 
     private boolean _hasBet = false;
     private int _betAmount = 0;
