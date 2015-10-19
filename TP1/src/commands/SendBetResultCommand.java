@@ -61,12 +61,18 @@ public class SendBetResultCommand implements ICommand {
 		for (ParisImp paris : betList) {
 			Result result = new Result(isWinner);
 			result.amount = getAmount(paris);
+			result.winnerTeam = this.winner == Team.TeamA ? match.teamA : match.teamB;
+			result.loserTeam = this.winner == Team.TeamA ? match.teamB : match.teamA;
+			result.matchId = match.id;
 
 			try {		
 				DataOutputStream out = new DataOutputStream(paris.socket.getOutputStream());
 				out.writeUTF(gson.toJson(result));
+				System.out.println("Envoi des résultats de paris");
 			} catch (Exception ex) {
 				System.out.println("Oupsss!!! Unable to send bet result to the client");
+				System.out.println(String.format("Port: %d", paris.socket.getPort()));
+				ex.printStackTrace();
 			}
 
 		}

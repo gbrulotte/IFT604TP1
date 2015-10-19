@@ -21,6 +21,7 @@ public class Match implements Serializable, Runnable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final int TIMER_DECREMENT_SEED = 30;
 	public UUID id;
 	public String teamA;
 	public String teamB;
@@ -42,9 +43,10 @@ public class Match implements Serializable, Runnable {
 		        new TimerTask() {
 		            @Override
 		            public void run() {
-		            	int oldValue = chrono.getAndSet(chrono.get() - 30);
-		            	if (oldValue == 30) {
+		            	int oldValue = chrono.getAndSet(chrono.get() - TIMER_DECREMENT_SEED);
+		            	if (oldValue == TIMER_DECREMENT_SEED) {
 		            		try {
+		            			System.out.println("The match is done.");
 		            			matchDone = true;
 		            			Paris.queue.put(new SendBetResultCommand(currentMatch));
 		            			//ListeDesMatchs.queue.put(new EnleverMatchCommand(id));

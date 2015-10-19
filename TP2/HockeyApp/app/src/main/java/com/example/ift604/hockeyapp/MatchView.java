@@ -3,10 +3,12 @@ package com.example.ift604.hockeyapp;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +22,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ift604.hockeyapp.models.ParisMessage;
 import com.example.ift604.hockeyapp.models.Penalty;
 import com.example.ift604.hockeyapp.models.JSONTags;
 import com.example.ift604.hockeyapp.models.MatchDetails;
@@ -54,6 +57,8 @@ public class MatchView extends Activity {
     // Pour sauvegarder le data
     private SharedPreferences _betsData;
 
+    public static Handler _uiHandler = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +75,6 @@ public class MatchView extends Activity {
         loadMatchAsync();
         startRefresher();
 
-        // Checker si on a déjà betté
         refreshSpinnerTeam(Arrays.asList(""));
 
         // Ajouter l'event sur le clic si on a pas bet
@@ -103,23 +107,22 @@ public class MatchView extends Activity {
         if (amount > 0 && team != null){
             hideBetSectionAndShowAmount(amount, team);
         }
+
+        _uiHandler = new Handler()
+        {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what)
+                {
+                    case 1:
+                        Toast.makeText(MatchView.this, "Une erreur est survenue lors de l'envoi du pari au serveur.", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        };
+
+        startService(new Intent(MatchView.this, ParisService.class));
     }
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        if (_refresher.isPaused()) {
-//            Log.i("MatchView", "Resuming the refresher thread");
-//            _refresher.resume();
-//        }
-//    }
-
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        Log.i("MatchView", "Pausing the refresher thread");
-//        _refresher.pause();
-//    }
 
     @Override
     protected void onDestroy() {
@@ -127,13 +130,6 @@ public class MatchView extends Activity {
         Log.i("MatchView", "Stopping the refresher thread");
         _refresher.stop();
     }
-
-//    @Override
-//    protected void onSaveInstanceState(Bundle savedInstanceState) {
-//        super.onSaveInstanceState(savedInstanceState);
-//        savedInstanceState.putInt(_id.toString() + "_amount", _betAmount);
-//        savedInstanceState.putString(_id.toString() + "_team", _betTeam);
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -203,17 +199,20 @@ public class MatchView extends Activity {
         SharedPreferences.Editor edit = _betsData.edit();
         edit.putInt(_id + "_amount", amount);
         edit.putString(_id + "_team", team);
-        edit.commit();
+        edit.apply();
         Log.i("MatchView", "Saved bet");
 
-        new SendBet().execute(team, Integer.toString(amount));
+        if (ParisService._serviceHandler != null) {
+            Message msg = new Message();
+            msg.obj = new ParisMessage(_id, team, amount);
+            ParisService._serviceHandler.sendMessage(msg);
+        }
+        //new SendBet().execute(team, Integer.toString(amount));
     }
 
     private class SendBet extends AsyncTask<String, Void, Exception> {
-
         @Override
         protected Exception doInBackground(String... params) {
-
             Exception exception = null;
             int amount = Integer.parseInt(params[1]);
             String team = params[0];
