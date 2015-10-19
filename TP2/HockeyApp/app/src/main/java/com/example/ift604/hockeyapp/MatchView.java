@@ -42,6 +42,7 @@ import java.util.UUID;
 public class MatchView extends Activity {
 
     private static final String BET_KEY = "betsData";
+    public static final String SERVER_IP = "10.0.2.2";
 
     private String _id = new UUID(0, 0).toString();
     private MatchDetails _match = null;
@@ -259,7 +260,7 @@ public class MatchView extends Activity {
             JSONObject jsonObject = null;
 
             try {
-                UDPHelper udp = new UDPHelper("10.0.2.2", 8080);
+                UDPHelper udp = new UDPHelper(SERVER_IP, 8080);
                 json = udp.sendAndReceive("MiseAJour~" + _id);
                 jsonObject = new JSONObject(json);
             }  catch (Exception e) {
