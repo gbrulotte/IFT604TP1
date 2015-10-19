@@ -32,6 +32,8 @@ public class MatchDetails {
 
     public static int getPeriod(int chrono) {
         int tempChrono = ((chrono % _periodLength) == 0 ? chrono - 1 : chrono);
+        if (chrono <= 0)
+            return 3;
         return (3 - (tempChrono / _periodLength));
     }
 
@@ -41,7 +43,7 @@ public class MatchDetails {
         if ((chrono % _periodLength) != 0){
             minutes = (chrono % _periodLength) / 60;
             seconds = (chrono % _periodLength) % 60;
-        } else if (chrono == 0) {
+        } else if (chrono <= 0) {
             minutes = 0;
         }
         return String.format("%02d:%02d", minutes, seconds);
