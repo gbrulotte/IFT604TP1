@@ -1,5 +1,7 @@
 package com.example.ift604.hockeyapp;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
@@ -7,8 +9,14 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.example.ift604.hockeyapp.models.JSONTags;
 import com.example.ift604.hockeyapp.models.ParisMessage;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -125,6 +133,37 @@ public class ParisService extends Service {
                     Log("Received data : " + receivedData);
                     _receivers.remove(this);
                     _socket.close();
+
+                    try {
+                        JSONObject parisResult = new JSONObject(receivedData);
+                        String title;
+                        String text;
+
+                        if (parisResult.getBoolean(JSONTags.ParisResult.IS_WINNER)) {
+                            Log("a gagné");
+                            title = String.format("Vous avez gagné %d $ !",
+                                    parisResult.getInt(JSONTags.ParisResult.AMOUNT));
+                            text = String.format("Victoire de %s contre %s",
+                                    parisResult.getString(JSONTags.ParisResult.WINNER_TEAM),
+                                    parisResult.getString(JSONTags.ParisResult.LOSER_TEAM));
+                        } else {
+                            Log("a perdu");
+                            title = "Vous avez perdu votre mise.";
+                            text = String.format("Défaite de %s contre %s",
+                                    parisResult.getString(JSONTags.ParisResult.WINNER_TEAM),
+                                    parisResult.getString(JSONTags.ParisResult.LOSER_TEAM));
+                        }
+
+                        NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+                        Notification n = new Notification.Builder(ParisService.this)
+                                .setSmallIcon(R.mipmap.ic_hockey_stick)
+                                .setContentTitle(title)
+                                .setContentText(text)
+                                .build();
+                        notificationManager.notify(1, n);
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

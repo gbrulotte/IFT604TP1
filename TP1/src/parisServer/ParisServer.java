@@ -40,8 +40,7 @@ public class ParisServer implements Runnable {
 					case "Bet":
 						UUID matchId = UUID.fromString(typeCommand[1]);
 						String team = typeCommand[2];
-						int amount = Integer.parseInt(typeCommand[3]);
-						System.out.println(String.format("Bet reçu : %s %s %d", matchId, team, amount));
+						int amount = Integer.parseInt(typeCommand[3]);						
 						ParisImp paris = new ParisImp(socket, matchId, team, amount);
 						ParierSurMatch command = new ParierSurMatch(paris);
 						Paris.queue.put(command);

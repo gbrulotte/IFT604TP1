@@ -32,9 +32,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.DataOutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -158,7 +155,7 @@ public class MatchView extends Activity {
 
     private void loadMatchAsync() {
         Log.i("MatchView", "Refreshing the data");
-        new JSONParse().execute();
+        new GetMatchDetailsTask().execute();
     }
 
     private void startRefresher() {
@@ -208,81 +205,48 @@ public class MatchView extends Activity {
             msg.obj = new ParisMessage(_id, team, amount);
             ParisService._serviceHandler.sendMessage(msg);
         }
-        //new SendBet().execute(team, Integer.toString(amount));
-    }
-
-    private class SendBet extends AsyncTask<String, Void, Exception> {
-        @Override
-        protected Exception doInBackground(String... params) {
-            Exception exception = null;
-            int amount = Integer.parseInt(params[1]);
-            String team = params[0];
-
-            try {
-                Socket clientSocket = new Socket(InetAddress.getByName("10.0.2.2"), 8081);
-                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-                outToServer.writeBytes(String.format("Bet~%s~%s~%d", _id, team, amount));
-                clientSocket.close();
-                Log.i("MatchView", "Sent bet to server");
-            } catch (Exception ex) {
-                exception = ex;
-            }
-            return exception;
-        }
-
-        @Override
-        protected void onPostExecute(Exception result) {
-            super.onPostExecute(result);
-
-            if (result != null) {
-                Toast.makeText(MatchView.this, "Une erreur est survenue lors de l'envoi du pari au serveur.", Toast.LENGTH_SHORT).show();
-                result.printStackTrace();
-            }
-        }
     }
 	
-	private class JSONParse extends AsyncTask<String, String, JSONObject> {
+	private class GetMatchDetailsTask extends AsyncTask<String, String, MatchDetails> {
         private ProgressDialog pDialog;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(MatchView.this);
-            pDialog.setMessage("Getting Data ...");
+            pDialog.setMessage("Getting the data ...");
             pDialog.setIndeterminate(false);
-            pDialog.setCancelable(true);
+            pDialog.setCancelable(false);
             pDialog.show();
         }
 
         @Override
-        protected JSONObject doInBackground(String... args) {
-
-            String json = null;
-            JSONObject jsonObject = null;
-
-            try {
-                UDPHelper udp = new UDPHelper(SERVER_IP, 8080);
-                json = udp.sendAndReceive("MiseAJour~" + _id);
-                jsonObject = new JSONObject(json);
-            }  catch (Exception e) {
-                e.printStackTrace();
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            if (values.length > 0) {
+                pDialog.setMessage(values[0]);
             }
-            return jsonObject;
         }
 
         @Override
-        protected void onPostExecute(JSONObject c) {
-            pDialog.dismiss();
+        protected MatchDetails doInBackground(String... args) {
+            MatchDetails match = null;
             try {
-                if (c != null) {
-                    MatchDetails tempMatch = new MatchDetails();
-                    tempMatch.teamA = c.getString(JSONTags.TEAM_A);
-                    tempMatch.teamB = c.getString(JSONTags.TEAM_B);
-                    tempMatch.scoreA = c.getInt(JSONTags.SCORE_A);
-                    tempMatch.scoreB = c.getInt(JSONTags.SCORE_B);
-                    tempMatch.chrono = c.getJSONObject(JSONTags.CHRONO).getInt("value");
+                UDPHelper udp = new UDPHelper(SERVER_IP, 8080);
+                String json = udp.sendAndReceive("MiseAJour~" + _id);
+                JSONObject jsonObject = new JSONObject(json);
 
-                    JSONArray goalsJSON = c.getJSONArray(JSONTags.GOALS);
-                    JSONArray penaltiesJSON = c.getJSONArray(JSONTags.PENALTIES);
+                publishProgress("Parsing the data...");
+
+                if (jsonObject != null) {
+                    match = new MatchDetails();
+                    match.teamA = jsonObject.getString(JSONTags.TEAM_A);
+                    match.teamB = jsonObject.getString(JSONTags.TEAM_B);
+                    match.scoreA = jsonObject.getInt(JSONTags.SCORE_A);
+                    match.scoreB = jsonObject.getInt(JSONTags.SCORE_B);
+                    match.chrono = jsonObject.getJSONObject(JSONTags.CHRONO).getInt("value");
+
+                    JSONArray goalsJSON = jsonObject.getJSONArray(JSONTags.GOALS);
+                    JSONArray penaltiesJSON = jsonObject.getJSONArray(JSONTags.PENALTIES);
 
                     for (int j = 0; j < goalsJSON.length(); ++j){
                         JSONObject goal = goalsJSON.getJSONObject(j);
@@ -300,7 +264,7 @@ public class MatchView extends Activity {
                                 assists += "\n " + assistsJSON.get(i).toString();
                             }
                         }
-                        tempMatch.goals.add(new Goal(team, scorer, assists, time));
+                        match.goals.add(new Goal(team, scorer, assists, time));
                     }
 
                     for (int j = 0; j < penaltiesJSON.length(); ++j){
@@ -311,62 +275,71 @@ public class MatchView extends Activity {
                         String reason = penalty.getString(JSONTags.Penalties.INFRINGEMENT);
                         int duration = penalty.getInt(JSONTags.Penalties.DURATION);
                         int time = penalty.getInt(JSONTags.Penalties.TIME);
-                        tempMatch.penalties.add(new Penalty(team, player, reason, duration, time));
+                        match.penalties.add(new Penalty(team, player, reason, duration, time));
                     }
-
-                    if (_match != null) {
-                        // Regarder s'il y a des nouveaux buts
-                        for (int i = _match.goals.size(); i < tempMatch.goals.size(); i++) {
-                            Goal goal = tempMatch.goals.get(i);
-                            String message = String.format("Nouveau but pour %s (%s) !", goal.team, goal.player);
-                            Toast.makeText(MatchView.this, message, Toast.LENGTH_LONG).show();
-                        }
-
-                        // Regarder s'il y a des nouvelles pénalités
-                        for (int i = _match.penalties.size(); i < tempMatch.penalties.size(); i++) {
-                            Penalty penalty = tempMatch.penalties.get(i);
-                            String message = String.format("Penalité pour %s (%s). %d minutes pour %s.", penalty.player, penalty.team, penalty.duration, penalty.infringement);
-                            Toast.makeText(MatchView.this, message, Toast.LENGTH_LONG).show();
-                        }
-                    }
-
-                    _match = tempMatch;
-
-                    // Mettre à jour le UI
-                    TextView textView = (TextView)findViewById(R.id.match_teamA);
-                    textView.setText(_match.teamA);
-                    textView = (TextView)findViewById(R.id.match_teamB);
-                    textView.setText(_match.teamB);
-
-                    textView = (TextView)findViewById(R.id.match_scoreA);
-                    textView.setText(Integer.toString(_match.scoreA));
-                    textView = (TextView)findViewById(R.id.match_scoreB);
-                    textView.setText(Integer.toString(_match.scoreB));
-
-                    textView = (TextView)findViewById(R.id.match_period);
-                    textView.setText(Integer.toString(_match.getPeriod()));
-                    textView = (TextView)findViewById(R.id.match_time);
-                    textView.setText(_match.getTime());
-
-                    MatchView.this.refreshSpinnerTeam(Arrays.asList("", _match.teamA, _match.teamB));
-
-                    if (!_hasBet && _match.getPeriod() > 2) {
-                        hideBetSectionAndShowMessage("Vous ne pouvez plus parier sur ce match.");
-                    }
-
-                    // Affichage des buts
-                    displayGoals();
-
-                    // Affichage des pénalités
-                    displayPenalties();
-
-                } else {
-                    Toast.makeText(MatchView.this, "An error happened getting the data of the match.", Toast.LENGTH_SHORT).show();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
+            }  catch (Exception e) {
+                e.printStackTrace();
+                match = null;
+            }
+            return match;
+        }
+
+        @Override
+        protected void onPostExecute(MatchDetails newMatchDetails) {
+            pDialog.dismiss();
+
+            if (newMatchDetails != null) {
+                // Si ce n'est pas la première fois qu'on fait le getData, on regarde s'il y a des nouveaux buts ou pénalités.
+                if (_match != null) {
+                    // Regarder s'il y a des nouveaux buts
+                    for (int i = _match.goals.size(); i < newMatchDetails.goals.size(); i++) {
+                        Goal goal = newMatchDetails.goals.get(i);
+                        String message = String.format("Nouveau but pour %s (%s) !", goal.team, goal.player);
+                        Toast.makeText(MatchView.this, message, Toast.LENGTH_LONG).show();
+                    }
+
+                    // Regarder s'il y a des nouvelles pénalités
+                    for (int i = _match.penalties.size(); i < newMatchDetails.penalties.size(); i++) {
+                        Penalty penalty = newMatchDetails.penalties.get(i);
+                        String message = String.format("Penalité pour %s (%s). %d minutes pour %s.", penalty.player, penalty.team, penalty.duration, penalty.infringement);
+                        Toast.makeText(MatchView.this, message, Toast.LENGTH_LONG).show();
+                    }
+                }
+                _match = newMatchDetails;
+
+                // Mettre à jour le UI
+                TextView textView = (TextView)findViewById(R.id.match_teamA);
+                textView.setText(_match.teamA);
+                textView = (TextView)findViewById(R.id.match_teamB);
+                textView.setText(_match.teamB);
+
+                textView = (TextView)findViewById(R.id.match_scoreA);
+                textView.setText(Integer.toString(_match.scoreA));
+                textView = (TextView)findViewById(R.id.match_scoreB);
+                textView.setText(Integer.toString(_match.scoreB));
+
+                textView = (TextView)findViewById(R.id.match_period);
+                textView.setText(Integer.toString(_match.getPeriod()));
+                textView = (TextView)findViewById(R.id.match_time);
+                textView.setText(_match.getTime());
+
+                MatchView.this.refreshSpinnerTeam(Arrays.asList("", _match.teamA, _match.teamB));
+
+                if (!_hasBet && _match.getPeriod() > 2) {
+                    hideBetSectionAndShowMessage("Vous ne pouvez plus parier sur ce match.");
+                }
+
+                // Affichage des buts
+                displayGoals();
+
+                // Affichage des pénalités
+                displayPenalties();
+
+            } else {
+                Toast.makeText(MatchView.this, "An error happened getting the data of the match.", Toast.LENGTH_SHORT).show();
+            }
         }
 
         private void displayGoals() {

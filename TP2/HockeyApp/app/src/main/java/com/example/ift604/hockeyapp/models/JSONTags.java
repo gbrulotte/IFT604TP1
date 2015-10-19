@@ -27,4 +27,12 @@ public final class JSONTags {
         public static final String DURATION = "duration";
         public static final String TIME = "time";
     }
+
+    public final class ParisResult {
+        public static final String AMOUNT = "amount";
+        public static final String IS_WINNER = "isWinner";
+        public static final String MATCH_ID = "matchId";
+        public static final String WINNER_TEAM = "winnerTeam";
+        public static final String LOSER_TEAM = "loserTeam";
+    }
 }
