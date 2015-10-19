@@ -48,6 +48,8 @@ public class SendBetResultCommand implements ICommand {
 				totalAmount += paris.amount;
 			}
 		}
+		
+		match.timer.cancel();
 
 		sendResult(bettorWinners, true);
 		sendResult(bettorLosers, false);

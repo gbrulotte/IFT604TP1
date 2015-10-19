@@ -21,7 +21,7 @@ public class Match implements Serializable, Runnable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int TIMER_DECREMENT_SEED = 30;
+	private static final int TIMER_DECREMENT_SEED = 1200;
 	public UUID id;
 	public String teamA;
 	public String teamB;
@@ -33,13 +33,14 @@ public class Match implements Serializable, Runnable {
 	public boolean matchDone;
 	public final static BlockingQueue<ICommand> queue = new ArrayBlockingQueue<ICommand>(10);
 	public Match currentMatch = this;
+	public transient Timer timer = new Timer();
 	
 	public Match(String teamA, String teamB, final UUID id) {
 		this.teamA = teamA;
 		this.teamB = teamB;
 		this.id = id;
-		
-		new Timer().scheduleAtFixedRate( 
+
+		timer.scheduleAtFixedRate( 
 		        new TimerTask() {
 		            @Override
 		            public void run() {

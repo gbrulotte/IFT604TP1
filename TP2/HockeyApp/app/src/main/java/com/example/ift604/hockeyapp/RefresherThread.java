@@ -56,7 +56,8 @@ public class RefresherThread implements Runnable {
                             _thread.wait();
                     }
                 }
-                _handler.post(_methodToRun);
+                if(_thread != null)
+                    _handler.post(_methodToRun);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
