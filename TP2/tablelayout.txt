@@ -1,3 +1,0 @@
-http://stackoverflow.com/questions/5553556/how-to-delete-table-row-in-table-layout-in-android
-http://stackoverflow.com/questions/24078275/how-to-add-a-row-dynamically-in-a-tablelayout-in-android
-http://stackoverflow.com/questions/5183968/how-to-add-rows-dynamically-into-table-layout
