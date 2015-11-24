@@ -1,0 +1,315 @@
+﻿@{
+    ViewBag.Title = "Hockey Nite";
+}
+
+<h1>Hockey Nite</h1>
+
+<div id="match-div">
+    <button type="button" data-bind="click: GetMatchList">Rafraîchir la liste des matchs</button>
+
+    <div id="match-list" data-bind="foreach: matchs">
+        <div class="match">
+            <span data-bind="visible: matchDone">[Terminé] </span>
+            <span data-bind="text: teamA"></span> vs. <span data-bind="text: teamB"></span><br />
+            <span data-bind="text: scoreA"></span> - <span data-bind="text: scoreB"></span>
+            <a href="#" data-bind="click: $parent.GetMatch.bind($data, id)">[View]</a>
+        </div>
+        <hr />
+    </div>
+</div>
+
+
+<div style="background-color: black; height: 5px;"></div>
+
+<div id="selected-match" data-bind="visible: teamA()">
+    <br />
+    <button type="button" data-bind="click: refresh">Rafraîchir les infos du match</button>
+    <h2 data-bind="text: teams"></h2>
+    <div data-bind="text: scores"></div>
+    <span>Période : </span> <span data-bind="text: period"></span><br/>
+    <span>Temps : </span> <span data-bind="text: time"></span><br/>
+
+    <h3>Buts</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Team</th>
+            <th>Player</th>
+            <th>Assists</th>
+            <th>Time | Period</th>
+        </tr>
+        </thead>
+        <tbody data-bind="foreach: goals">
+        <tr>
+            <td data-bind="text: team"></td>
+            <td data-bind="text: player"></td>
+            <td style="white-space: pre" data-bind="text: assists"></td>
+            <td data-bind="text: time"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h3>Pénalités</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Team</th>
+            <th>Player</th>
+            <th>Infringement</th>
+            <th>Duration</th>
+            <th>Time | Period</th>
+        </tr>
+        </thead>
+        <tbody data-bind="foreach: penalties">
+        <tr>
+            <td data-bind="text: team"></td>
+            <td data-bind="text: player"></td>
+            <td data-bind="text: infringement"></td>
+            <td data-bind="text: duration"></td>
+            <td data-bind="text: time"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h3>Parier</h3>
+    <div>
+        <input type="text" data-bind="value: betAmount, enable: canBet"/>
+        <select data-bind="options: betTeams, value: betTeam, enable: canBet"></select>
+        <button type="button" data-bind="click: betOnMatch, enable: canBet">Parier sur ce match</button>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+
+        var selectedMatch = new function() {
+            var self = this,
+                updateInterval = null;
+            self.teamA = ko.observable();
+            self.teamB = ko.observable();
+            self.scoreA = ko.observable();
+            self.scoreB = ko.observable();
+            self.id = ko.observable();
+            self.time = ko.observable();
+            self.period = ko.observable();
+            self.isMatchDone = ko.observable();
+
+            self.penalties = ko.observableArray();
+            self.goals = ko.observableArray();
+            self.penalties = ko.observableArray();
+
+            self.teams = ko.computed(function() {
+                return self.teamA() + " vs. " + self.teamB();
+            });
+
+            self.scores = ko.computed(function() {
+                return self.scoreA() + " - " + self.scoreB();
+            });
+
+            // Paris
+            self.didBet = ko.observable(false);
+            self.betAmount = ko.observable(null);
+            self.betTeam = ko.observable(null);
+            self.betTeams = ko.computed(function() {
+                return [null, self.teamA(), self.teamB()];
+            });
+            self.canBet = ko.computed(function() {
+                return !self.didBet() && self.period() < 3;
+            });
+
+            self.refresh = function() {
+                if (self.id()) {
+                    vm.GetMatch(self.id());
+                }
+            };
+
+            self.betOnMatch = function() {
+                if (!self.betAmount() && self.betAmount() != parseInt(self.betAmount())) {
+                    toastr["error"]("Vous devez entrer un entier numérique plus grand que 0.", "Montant invalide");
+                    return;
+                }
+
+                if (self.betTeam() === null) {
+                    toastr["error"]("Vous devez choisir une équipe sur laquelle parier.", "Équipe invalide");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Data/BetOnMatch",
+                    dataType: "json",
+                    data: {
+                        matchId: self.id(),
+                        team: self.betTeam(),
+                        amount: self.betAmount()
+                    },
+                    success: function(data) {
+                        if (data === true) {
+                            toastr["info"]("Vous avez parié " + self.betAmount() + "$ sur " + self.betTeam() + " pour ce match.", "Pari enregistré");
+                            self.didBet(true);
+                        } else {
+                            toastr["error"]("Vous avez déjà parié sur ce match.", "Pari impossible");
+                        }
+                    }
+                });
+            };
+
+            self.setMatch = function(match) {
+                var isSameMatch = (match.id === self.id());
+
+                self.teamA(match.teamA);
+                self.teamB(match.teamB);
+                self.scoreA(match.scoreA);
+                self.scoreB(match.scoreB);
+                self.id(match.id);
+                self.isMatchDone(match.matchDone);
+
+                // Reset les infos de bet
+                self.didBet(false);
+                self.betTeam(null);
+                self.betAmount(null);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Data/GetBet",
+                    dataType: "json",
+                    data: {
+                        matchId: match.id
+                    },
+                    success: function(data) {
+                        if (data.Amount) {
+                            self.didBet(true);
+                            self.betTeam(data.Team);
+                            self.betAmount(data.Amount);
+                        }
+                    }
+                });
+
+                // Clear et recrée l'interval si nécessaire
+                if (updateInterval !== null && !isSameMatch) {
+                    clearInterval(updateInterval);
+                    updateInterval = null;
+                }
+
+                if (updateInterval === null) {
+                    updateInterval = setInterval(selectedMatch.refresh, 2 * 1000);
+                }
+
+                self.time(getTime(match.chrono.value));
+                self.period(getPeriod(match.chrono.value));
+
+                var newGoals = match.goals.slice(self.goals().length);
+
+                // Affiche les buts
+                self.goals.removeAll();
+                for (var i = 0; i < match.goals.length; i++) {
+                    var goal = {
+                        team: match.goals[i].team,
+                        player: match.goals[i].player,
+                        time: getTime(match.goals[i].time) + " | " + getPeriod(match.goals[i].time),
+                        assists: match.goals[i].assists.join("\n")
+                    };
+                    self.goals.push(goal);
+                }
+
+                // Affiche les nouveaux buts
+                if (isSameMatch) {
+                    for (var i = 0; i < newGoals.length; i++) {
+                        toastr["success"]("Nouveau but pour {0} ({1})"
+                            .replace("{0}", newGoals[i].team)
+                            .replace("{1}", newGoals[i].player),
+                            "Et c'est le but !");
+                    }
+                }
+
+                var newPenalties = match.penalties.slice(self.penalties().length);
+
+                // Affiche les pénalités du match
+                self.penalties.removeAll();
+                for (var i = 0; i < match.penalties.length; i++) {
+                    var penalty = {
+                        team: match.penalties[i].team,
+                        player: match.penalties[i].player,
+                        infringement: match.penalties[i].infringement,
+                        duration: match.penalties[i].duration,
+                        time: getTime(match.penalties[i].time) + " | " + getPeriod(match.penalties[i].time)
+                    };
+                    self.penalties.push(penalty);
+                }
+
+                if (isSameMatch) {
+                    for (var i = 0; i < newPenalties.length; i++) {
+                        toastr["error"]("Pénalité pour {0} ({1}). {2} minutes pour {3}."
+                            .replace("{0}", newPenalties[i].team)
+                            .replace("{1}", newPenalties[i].player)
+                            .replace("{2}", newPenalties[i].duration)
+                            .replace("{3}", newPenalties[i].infringement),
+                            "Pénalité");
+                    }
+                }
+            }
+        };
+
+        var vm = new function() {
+            var self = this;
+
+            self.matchs = ko.observableArray();
+
+            self.GetMatchList = function() {
+                $.ajax({
+                    type: "POST",
+                    url: "/Data/GetMatchList",
+                    dataType: "json",
+                    success: function(data) {
+                        if (data && data instanceof Array) {
+                            vm.matchs.removeAll();
+                            for (var i = 0; i < data.length; i++) {
+                                vm.matchs.push(data[i]);
+                                if (selectedMatch.id() === data[i].id) {
+                                    selectedMatch.setMatch(data[i]);
+                                }
+                            }
+                        } else {
+                            console.log("error GetMatchList");
+                        }
+                    }
+                });
+            }
+
+            self.GetMatch = function(matchId) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Data/GetMatchInfo",
+                    dataType: "json",
+                    data: {
+                        matchId: matchId
+                    },
+                    success: function(data) {
+                        if (data) {
+                            selectedMatch.setMatch(data);
+                        } else {
+                            console.log("error GetMatchInfo");
+                        }
+                    }
+                });
+            }
+        };
+
+        $(function() {
+            ko.applyBindings(vm, document.getElementById("match-div"));
+            ko.applyBindings(selectedMatch, document.getElementById("selected-match"));
+
+            vm.GetMatchList();
+            setInterval(vm.GetMatchList, 2 * 60 * 1000);
+
+            toastr.options = {
+                "closeButton": true,
+                "newestOnTop": true,
+                "timeOut": "10000"
+            };
+
+            // TODO(poveilleux) : Get du résultat de mes bets à toutes les 5 secondes
+        });
+    </script>
+}
