@@ -70,7 +70,7 @@ public class SendBetResultCommand implements ICommand {
 			try {		
 				DataOutputStream out = new DataOutputStream(paris.socket.getOutputStream());
 				out.writeBytes(gson.toJson(result) + "\n");
-				System.out.println("Envoi des résultats de paris");
+				System.out.println("Envoi des résultats de paris : " + gson.toJson(result));
 			} catch (Exception ex) {
 				System.out.println("Oupsss!!! Unable to send bet result to the client");
 				System.out.println(String.format("Port: %d", paris.socket.getPort()));

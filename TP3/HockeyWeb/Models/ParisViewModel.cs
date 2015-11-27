@@ -36,10 +36,19 @@ namespace HockeyWeb.Models
                 InnerTask = Task.Factory.StartNew(() =>
                 {
                     var bytes = new byte[1024];
-                    var bytesRead = ns.Read(bytes, 0, bytes.Length);
-                    var returnData = Encoding.ASCII.GetString(bytes, 0, bytesRead);
+                    var isDone = false;
+                    var result = string.Empty;
+                    while (!isDone)
+                    {
+                        var bytesRead = ns.Read(bytes, 0, bytes.Length);
+                        var returnData = Encoding.ASCII.GetString(bytes, 0, bytesRead);
+                        result += returnData;
+                        if (result.Last() == '\n') result = result.Remove(result.Length - 1);
+                        isDone = bytesRead > 0 && result.Last() == '}';
+                    }
+                    
                     clientSocket.Close();
-                    Result = new JavaScriptSerializer().Deserialize<dynamic>(returnData);
+                    Result = new JavaScriptSerializer().Deserialize<dynamic>(result);
                 });
             }
             catch (Exception ex)

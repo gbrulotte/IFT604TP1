@@ -26,54 +26,54 @@
     <button type="button" data-bind="click: refresh">Rafraîchir les infos du match</button>
     <h2 data-bind="text: teams"></h2>
     <div data-bind="text: scores"></div>
-    <span>Période : </span> <span data-bind="text: period"></span><br/>
-    <span>Temps : </span> <span data-bind="text: time"></span><br/>
+    <span>Période : </span> <span data-bind="text: period"></span><br />
+    <span>Temps : </span> <span data-bind="text: time"></span><br />
 
     <h3>Buts</h3>
     <table>
         <thead>
-        <tr>
-            <th>Team</th>
-            <th>Player</th>
-            <th>Assists</th>
-            <th>Time | Period</th>
-        </tr>
+            <tr>
+                <th>Team</th>
+                <th>Player</th>
+                <th>Assists</th>
+                <th>Time | Period</th>
+            </tr>
         </thead>
         <tbody data-bind="foreach: goals">
-        <tr>
-            <td data-bind="text: team"></td>
-            <td data-bind="text: player"></td>
-            <td style="white-space: pre" data-bind="text: assists"></td>
-            <td data-bind="text: time"></td>
-        </tr>
+            <tr>
+                <td data-bind="text: team"></td>
+                <td data-bind="text: player"></td>
+                <td style="white-space: pre" data-bind="text: assists"></td>
+                <td data-bind="text: time"></td>
+            </tr>
         </tbody>
     </table>
 
     <h3>Pénalités</h3>
     <table>
         <thead>
-        <tr>
-            <th>Team</th>
-            <th>Player</th>
-            <th>Infringement</th>
-            <th>Duration</th>
-            <th>Time | Period</th>
-        </tr>
+            <tr>
+                <th>Team</th>
+                <th>Player</th>
+                <th>Infringement</th>
+                <th>Duration</th>
+                <th>Time | Period</th>
+            </tr>
         </thead>
         <tbody data-bind="foreach: penalties">
-        <tr>
-            <td data-bind="text: team"></td>
-            <td data-bind="text: player"></td>
-            <td data-bind="text: infringement"></td>
-            <td data-bind="text: duration"></td>
-            <td data-bind="text: time"></td>
-        </tr>
+            <tr>
+                <td data-bind="text: team"></td>
+                <td data-bind="text: player"></td>
+                <td data-bind="text: infringement"></td>
+                <td data-bind="text: duration"></td>
+                <td data-bind="text: time"></td>
+            </tr>
         </tbody>
     </table>
 
     <h3>Parier</h3>
     <div>
-        <input type="text" data-bind="value: betAmount, enable: canBet"/>
+        <input type="text" data-bind="value: betAmount, enable: canBet" />
         <select data-bind="options: betTeams, value: betTeam, enable: canBet"></select>
         <button type="button" data-bind="click: betOnMatch, enable: canBet">Parier sur ce match</button>
     </div>
@@ -83,7 +83,7 @@
 {
     <script type="text/javascript">
 
-        var selectedMatch = new function() {
+        var selectedMatch = new function () {
             var self = this,
                 updateInterval = null;
             self.teamA = ko.observable();
@@ -99,11 +99,11 @@
             self.goals = ko.observableArray();
             self.penalties = ko.observableArray();
 
-            self.teams = ko.computed(function() {
+            self.teams = ko.computed(function () {
                 return self.teamA() + " vs. " + self.teamB();
             });
 
-            self.scores = ko.computed(function() {
+            self.scores = ko.computed(function () {
                 return self.scoreA() + " - " + self.scoreB();
             });
 
@@ -111,20 +111,20 @@
             self.didBet = ko.observable(false);
             self.betAmount = ko.observable(null);
             self.betTeam = ko.observable(null);
-            self.betTeams = ko.computed(function() {
+            self.betTeams = ko.computed(function () {
                 return [null, self.teamA(), self.teamB()];
             });
-            self.canBet = ko.computed(function() {
+            self.canBet = ko.computed(function () {
                 return !self.didBet() && self.period() < 3;
             });
 
-            self.refresh = function() {
+            self.refresh = function () {
                 if (self.id()) {
                     vm.GetMatch(self.id());
                 }
             };
 
-            self.betOnMatch = function() {
+            self.betOnMatch = function () {
                 if (!self.betAmount() && self.betAmount() != parseInt(self.betAmount())) {
                     toastr["error"]("Vous devez entrer un entier numérique plus grand que 0.", "Montant invalide");
                     return;
@@ -144,7 +144,7 @@
                         team: self.betTeam(),
                         amount: self.betAmount()
                     },
-                    success: function(data) {
+                    success: function (data) {
                         if (data === true) {
                             toastr["info"]("Vous avez parié " + self.betAmount() + "$ sur " + self.betTeam() + " pour ce match.", "Pari enregistré");
                             self.didBet(true);
@@ -155,7 +155,7 @@
                 });
             };
 
-            self.setMatch = function(match) {
+            self.setMatch = function (match) {
                 var isSameMatch = (match.id === self.id());
 
                 self.teamA(match.teamA);
@@ -170,21 +170,23 @@
                 self.betTeam(null);
                 self.betAmount(null);
 
-                $.ajax({
-                    type: "POST",
-                    url: "/Data/GetBet",
-                    dataType: "json",
-                    data: {
-                        matchId: match.id
-                    },
-                    success: function(data) {
-                        if (data.Amount) {
-                            self.didBet(true);
-                            self.betTeam(data.Team);
-                            self.betAmount(data.Amount);
+                if (!isSameMatch) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Data/GetBet",
+                        dataType: "json",
+                        data: {
+                            matchId: match.id
+                        },
+                        success: function (data) {
+                            if (data.Amount) {
+                                self.didBet(true);
+                                self.betTeam(data.Team);
+                                self.betAmount(data.Amount);
+                            }
                         }
-                    }
-                });
+                    });
+                }
 
                 // Clear et recrée l'interval si nécessaire
                 if (updateInterval !== null && !isSameMatch) {
@@ -193,7 +195,7 @@
                 }
 
                 if (updateInterval === null) {
-                    updateInterval = setInterval(selectedMatch.refresh, 2 * 1000);
+                    updateInterval = setInterval(selectedMatch.refresh, 2 * 60 * 1000);
                 }
 
                 self.time(getTime(match.chrono.value));
@@ -251,17 +253,17 @@
             }
         };
 
-        var vm = new function() {
+        var vm = new function () {
             var self = this;
 
             self.matchs = ko.observableArray();
 
-            self.GetMatchList = function() {
+            self.GetMatchList = function () {
                 $.ajax({
                     type: "POST",
                     url: "/Data/GetMatchList",
                     dataType: "json",
-                    success: function(data) {
+                    success: function (data) {
                         if (data && data instanceof Array) {
                             vm.matchs.removeAll();
                             for (var i = 0; i < data.length; i++) {
@@ -277,7 +279,7 @@
                 });
             }
 
-            self.GetMatch = function(matchId) {
+            self.GetMatch = function (matchId) {
                 $.ajax({
                     type: "POST",
                     url: "/Data/GetMatchInfo",
@@ -285,7 +287,7 @@
                     data: {
                         matchId: matchId
                     },
-                    success: function(data) {
+                    success: function (data) {
                         if (data) {
                             selectedMatch.setMatch(data);
                         } else {
@@ -296,7 +298,7 @@
             }
         };
 
-        $(function() {
+        $(function () {
             ko.applyBindings(vm, document.getElementById("match-div"));
             ko.applyBindings(selectedMatch, document.getElementById("selected-match"));
 
@@ -309,7 +311,27 @@
                 "timeOut": "10000"
             };
 
-            // TODO(poveilleux) : Get du résultat de mes bets à toutes les 5 secondes
+            setInterval(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "Data/GetBetResults",
+                    success: function (data) {
+                        if (data.IsSuccess === false) {
+                            return;
+                        }
+
+                        if (data.Payload.isWinner === true) {
+                            toastr.success("Victoire de {0} contre {1}"
+                                .replace("{0}", data.Payload.winnerTeam)
+                                .replace("{1}", data.Payload.loserTeam),
+                                "Vous avez gagné {0} $ !".replace("{0}", data.Payload.amount));
+                        } else {
+                            toastr.error("");
+                        }
+                    }
+                });
+            },
+        5000);
         });
     </script>
 }

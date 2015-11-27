@@ -122,6 +122,11 @@ namespace HockeyWeb.Controllers
             return Json(true);
         }
 
+        /// <summary>
+        /// Get the ongoing bet for a match (Called after GetMatchDetails).
+        /// </summary>
+        /// <param name="matchId"></param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult GetBet(Guid matchId)
         {
@@ -132,7 +137,34 @@ namespace HockeyWeb.Controllers
                 return Json(monParis);
             }
 
-            return Json(new{});
+            return Json(new { });
+        }
+
+        [HttpPost]
+        public ActionResult GetBetResults()
+        {
+            foreach (var pair in Paris.ToList())
+            {
+                var bet = pair.Value.FirstOrDefault(x => x.UserId == UserId);
+
+                if (bet != null && bet.Result != null)
+                {
+                    var result = new
+                    {
+                        IsSuccess = true,
+                        Payload = bet.Result
+                    };
+
+                    pair.Value.Remove(bet);
+
+                    return Json(result);
+                }
+            }
+
+            return Json(new
+            {
+                IsSuccess = false
+            });
         }
     }
 }
