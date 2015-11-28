@@ -1,0 +1,4 @@
+1. Démarrer le TP1 dans Eclipse
+2. Démarrer le TP3 dans Visual Studio 2013
+3. Ajouter les matchs dans le serveur roulant sur Eclipse
+4. Voilà !

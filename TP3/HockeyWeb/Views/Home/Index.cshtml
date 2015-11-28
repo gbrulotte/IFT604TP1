@@ -7,19 +7,19 @@
 <div id="match-div">
     <button type="button" data-bind="click: GetMatchList">Rafraîchir la liste des matchs</button>
 
-    <div id="match-list" data-bind="foreach: matchs">
+    <div id="match-list" data-bind="foreach: matchs" style="margin-top: 10px;">
+        <hr data-bind="visible: $index() > 0" />
         <div class="match">
             <span data-bind="visible: matchDone">[Terminé] </span>
             <span data-bind="text: teamA"></span> vs. <span data-bind="text: teamB"></span><br />
             <span data-bind="text: scoreA"></span> - <span data-bind="text: scoreB"></span>
             <a href="#" data-bind="click: $parent.GetMatch.bind($data, id)">[View]</a>
         </div>
-        <hr />
     </div>
 </div>
 
 
-<div style="background-color: black; height: 5px;"></div>
+<div style="background-color: black; height: 5px; margin: 10px 0;"></div>
 
 <div id="selected-match" data-bind="visible: teamA()">
     <br />
@@ -83,7 +83,7 @@
 {
     <script type="text/javascript">
 
-        var selectedMatch = new function() {
+        var selectedMatch = new function () {
             var self = this,
                 updateInterval = null;
             self.teamA = ko.observable();
@@ -99,11 +99,11 @@
             self.goals = ko.observableArray();
             self.penalties = ko.observableArray();
 
-            self.teams = ko.computed(function() {
+            self.teams = ko.computed(function () {
                 return self.teamA() + " vs. " + self.teamB();
             });
 
-            self.scores = ko.computed(function() {
+            self.scores = ko.computed(function () {
                 return self.scoreA() + " - " + self.scoreB();
             });
 
@@ -111,20 +111,20 @@
             self.didBet = ko.observable(false);
             self.betAmount = ko.observable(null);
             self.betTeam = ko.observable(null);
-            self.betTeams = ko.computed(function() {
+            self.betTeams = ko.computed(function () {
                 return [null, self.teamA(), self.teamB()];
             });
-            self.canBet = ko.computed(function() {
+            self.canBet = ko.computed(function () {
                 return !self.didBet() && self.period() < 3;
             });
 
-            self.refresh = function() {
+            self.refresh = function () {
                 if (self.id()) {
                     vm.GetMatch(self.id());
                 }
             };
 
-            self.betOnMatch = function() {
+            self.betOnMatch = function () {
                 if (!self.betAmount() && self.betAmount() != parseInt(self.betAmount())) {
                     toastr["error"]("Vous devez entrer un entier numérique plus grand que 0.", "Montant invalide");
                     return;
@@ -144,7 +144,7 @@
                         team: self.betTeam(),
                         amount: self.betAmount()
                     },
-                    success: function(data) {
+                    success: function (data) {
                         if (data === true) {
                             toastr["info"]("Vous avez parié " + self.betAmount() + "$ sur " + self.betTeam() + " pour ce match.", "Pari enregistré");
                             self.didBet(true);
@@ -155,7 +155,7 @@
                 });
             };
 
-            self.setMatch = function(match) {
+            self.setMatch = function (match) {
                 var isSameMatch = (match.id === self.id());
 
                 self.teamA(match.teamA);
@@ -165,12 +165,12 @@
                 self.id(match.id);
                 self.isMatchDone(match.matchDone);
 
-                // Reset les infos de bet
-                self.didBet(false);
-                self.betTeam(null);
-                self.betAmount(null);
-
                 if (!isSameMatch) {
+                    // Reset les infos de bet
+                    self.didBet(false);
+                    self.betTeam(null);
+                    self.betAmount(null);
+
                     $.ajax({
                         type: "POST",
                         url: "/Data/GetBet",
@@ -178,7 +178,7 @@
                         data: {
                             matchId: match.id
                         },
-                        success: function(data) {
+                        success: function (data) {
                             if (data.Amount) {
                                 self.didBet(true);
                                 self.betTeam(data.Team);
@@ -253,17 +253,17 @@
             }
         };
 
-        var vm = new function() {
+        var vm = new function () {
             var self = this;
 
             self.matchs = ko.observableArray();
 
-            self.GetMatchList = function() {
+            self.GetMatchList = function () {
                 $.ajax({
                     type: "POST",
                     url: "/Data/GetMatchList",
                     dataType: "json",
-                    success: function(data) {
+                    success: function (data) {
                         if (data && data instanceof Array) {
                             vm.matchs.removeAll();
                             for (var i = 0; i < data.length; i++) {
@@ -279,7 +279,7 @@
                 });
             }
 
-            self.GetMatch = function(matchId) {
+            self.GetMatch = function (matchId) {
                 $.ajax({
                     type: "POST",
                     url: "/Data/GetMatchInfo",
@@ -287,7 +287,7 @@
                     data: {
                         matchId: matchId
                     },
-                    success: function(data) {
+                    success: function (data) {
                         if (data) {
                             selectedMatch.setMatch(data);
                         } else {
@@ -298,7 +298,7 @@
             }
         };
 
-        $(function() {
+        $(function () {
             ko.applyBindings(vm, document.getElementById("match-div"));
             ko.applyBindings(selectedMatch, document.getElementById("selected-match"));
 
@@ -311,29 +311,28 @@
                 "timeOut": "10000"
             };
 
-            setInterval(function() {
-                    $.ajax({
-                        type: "POST",
-                        url: "Data/GetBetResults",
-                        success: function(data) {
-                            if (data.IsSuccess === false) {
-                                return;
-                            }
-
-                            if (data.Payload.isWinner === true) {
-                                toastr.success("Victoire de {0} contre {1}"
-                                    .replace("{0}", data.Payload.winnerTeam)
-                                    .replace("{1}", data.Payload.loserTeam),
-                                    "Vous avez gagné {0} $ !".replace("{0}", data.Payload.amount));
-                            } else {
-                                toastr.error("Défaite de {0} contre {0}"
-                                    .replace("{0}", data.Payload.loserTeam)
-                                    .replace("{1}", data.Payload.winnerTeam), "Vous avez perdu votre mise.");
-                            }
+            setInterval(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "Data/GetBetResults",
+                    success: function (data) {
+                        if (data.IsSuccess === false) {
+                            return;
                         }
-                    });
-                },
-                5000);
+
+                        if (data.Payload.isWinner === true) {
+                            toastr.success("Victoire de {0} contre {1}"
+                                .replace("{0}", data.Payload.winnerTeam)
+                                .replace("{1}", data.Payload.loserTeam),
+                                "Vous avez gagné {0} $ !".replace("{0}", data.Payload.amount));
+                        } else {
+                            toastr.error("Défaite de {0} contre {1}"
+                                .replace("{0}", data.Payload.loserTeam)
+                                .replace("{1}", data.Payload.winnerTeam), "Vous avez perdu votre mise.");
+                        }
+                    }
+                });
+            }, 5000);
         });
     </script>
 }

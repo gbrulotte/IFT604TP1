@@ -21,8 +21,8 @@ public class Match implements Serializable, Runnable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int TIMER_DECREMENT_SEED = 1200;
-	private static final int TIMER_INTERVAL = 30000;
+	private static final int TIMER_INTERVAL = 1000; // every 1 second
+	private static final int TIMER_DECREMENT_SEED = 1; // we remove 1 second from the timer	
 	public UUID id;
 	public String teamA;
 	public String teamB;
